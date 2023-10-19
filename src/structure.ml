@@ -289,6 +289,10 @@ let rec of_structure (structure : structure) : t list Monad.t =
               NotSupported
               ("Cannot get the fields of the abstract module type `"
              ^ Path.name path ^ "` to handle the include.")
+        | Mty_for_hole ->
+            error_message (Error "mty_hole")
+              NotSupported
+              "Holes not supported"
         | Mty_signature signature ->
             let* items =
               signature
@@ -334,34 +338,48 @@ let rec of_structure (structure : structure) : t list Monad.t =
         | Mty_functor _ ->
             error_message (Error "include_functor") Unexpected
               "Unexpected include of functor."
-        | Mty_for_hole ->
-            error_message (Error "module_hole") Unexpected
-              "Unexpected module hole.")
+      )
     | _ -> return [ ModuleInclude reference ]
   in
   let of_structure_item (item : structure_item) (final_env : Env.t) :
-      t list Monad.t =
+    t list Monad.t =
+    let is_top_level_evaluation = function
+      | [
+        {
+          vb_pat =
+            {
+              pat_desc =
+                Tpat_construct
+                  ( _,
+                    { cstr_res;
+                      _;
+                    },
+                    _, _ );
+              _;
+            };
+          _;
+        };
+      ] ->
+        begin match Types.get_desc cstr_res with
+          | Tconstr (path, _, _) -> PathName.is_unit path
+          | _ -> false
+        end
+      | _ -> false
+    in
     set_env item.str_env
       (set_loc item.str_loc
          (wrap_documentation
             (match item.str_desc with
             | Tstr_value
                 ( _,
-                  [
+                  ([
                     {
                       vb_attributes;
-                      vb_pat =
-                        {
-                          pat_desc = Tpat_construct (_, { cstr_res; _ }, _, _);
-                          _;
-                        };
                       vb_expr;
                       _;
                     };
-                  ] )
-              when match Types.get_desc cstr_res with
-                   | Tconstr (path, _, _) -> PathName.is_unit path
-                   | _ -> false ->
+                  ] as vbs) )
+              when is_top_level_evaluation vbs ->
                 let* attributes = Attribute.of_attributes vb_attributes in
                 if Attribute.has_axiom_with_reason attributes then return []
                 else top_level_evaluation vb_expr
@@ -547,7 +565,7 @@ and of_module_expr (name : Name.t) (functor_parameters : functor_parameters)
       | None ->
           let* reference = PathName.of_path_with_convert false path in
           return (ModuleSynonym (name, reference)))
-  | Tmod_apply _ ->
+  | Tmod_apply _ | Tmod_apply_unit _ ->
       let module_type_annotation =
         match module_type_annotation with
         | None -> None
@@ -585,7 +603,10 @@ and of_module_expr (name : Name.t) (functor_parameters : functor_parameters)
         (Error
            "Cannot unpack first-class modules at top-level due to a universe \
             inconsistency")
-  | Tmod_hole -> return (Error "Unexpected module hole")
+  | Tmod_hole ->
+    return
+      (Error
+         "Holes not supported")
 
 (** Pretty-print a structure to Coq. *)
 let rec to_coq (fargs : FArgs.t) (defs : t list) : SmartPrint.t =

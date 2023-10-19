@@ -63,6 +63,7 @@ module RawDecomposedPath = struct
     | Pdot (path', field) ->
         let* start_path, fields = get_rev path' in
         return (start_path, (signed_path, field) :: fields)
+    | Pextra_ty _ -> failwith "Unexpected path of introduced construct"
 end
 
 module DecomposedPath = struct
@@ -160,6 +161,7 @@ let get_local_base_path (is_value : bool) (path : Path.t) :
     PathName.t option Monad.t =
   match path with
   | Papply _ -> failwith "Unexpected functor path application"
+  | Pextra_ty _ -> failwith "Unexpected path of introduced construct"
   | Pident _ -> return None
   | Pdot (path', _) ->
       let* is_local = is_module_path_local path' in

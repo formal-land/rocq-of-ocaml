@@ -66,7 +66,11 @@ module Command = struct
     | GetDocumentation ->
         let documentation, _ =
           let open Merlin_analysis in
-          Ocamldoc.associate_comment context.comments context.loc context.loc
+          Ocamldoc.associate_comment
+            ~after_only:false
+            context.comments
+            context.loc
+            context.loc
         in
         Result.success documentation
     | GetEnv -> Result.success context.env
@@ -110,7 +114,8 @@ module Wrapper = struct
     | EnvSet env -> interpret { context with env }
     | EnvStackPush ->
         interpret { context with env_stack = context.env :: context.env_stack }
-    | LocSet loc -> interpret { context with loc }
+    | LocSet loc ->
+      interpret { context with loc }
 end
 
 let rec eval : type a. a Monad.t -> a Interpret.t =

@@ -187,7 +187,6 @@ let not_module_typ_first_class_hash : string Hash.t = Hash.create 12
 
 let is_module_typ_first_class (module_typ : Types.module_type)
     (module_path : Path.t option) : maybe_found Monad.t =
-  let* env = get_env in
   let index =
     match module_typ with
     | Mty_signature signature ->

@@ -123,6 +123,7 @@ let of_path_without_convert (is_value : bool) (path : Path.t) : t Monad.t =
         let name = Path.name path in
         raise ([], Name.Make name) Unexpected
           ("Unexpected functor path application " ^ Path.name path)
+    | Path.Pextra_ty _ -> failwith "Unexpected path of introduced construct"
   in
   aux path >>= fun (path, base) -> return (of_name (List.rev path) base)
 
@@ -142,6 +143,7 @@ let of_path_and_name_with_convert (path : Path.t) (name : Name.t) : t Monad.t =
         let name = Path.name path in
         raise ([], Name.Make name) Unexpected
           ("Unexpected functor path application " ^ Path.name path)
+    | Path.Pextra_ty _ -> failwith "Unexpected path of introduced construct"
   in
   aux path >>= fun (path, base) -> convert (of_name path base)
 
@@ -165,7 +167,7 @@ let rec iterate_in_aliases (path : Path.t) (nb_args : int) : Path.t Monad.t =
   in
   let* env = get_env in
   match Env.find_type path env with
-  | { type_manifest = Some typ } -> (
+  | { type_manifest = Some typ; _ } -> (
       match Types.get_desc typ with
       | Tconstr (path', args, _) when List.length args = nb_args ->
           if is_in_barrier_module path && not (is_in_barrier_module path') then

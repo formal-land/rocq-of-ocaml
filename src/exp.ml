@@ -858,7 +858,7 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
           | Texp_letexception _ ->
               error_message (Error "let_exception") SideEffect
                 "Let of exception is not handled"
-          | Texp_assert e' ->
+          | Texp_assert (e',_) ->
               Type.of_typ_expr false typ_vars e.exp_type >>= fun (typ, _, _) ->
               of_expression typ_vars e' >>= fun e' ->
               error_message
@@ -1415,6 +1415,44 @@ and of_module_expr (typ_vars : Name.t Name.Map.t)
           build_module module_typ_params_arity values module_type_path
             mixed_path_of_value_or_typ
         in
+        let apply_mod e1 e2 =
+          let e1_mod_type = e1.mod_type in
+          let expected_module_typ_for_e2 =
+            match e1_mod_type with
+            | Mty_functor (Named (_, module_typ_arg), _) ->
+              Some module_typ_arg
+            | _ -> None
+          in
+          let* e1 = of_module_expr typ_vars e1 None in
+          let* es =
+            match e1_mod_type with
+            | Mty_functor (Unit, _) -> return []
+            | _ ->
+              match e2 with
+              | None ->
+                raise [] Unexpected
+                  ("Tmod_apply_unit was used with a non-generative functor")
+              | Some e2 ->
+                let* e2 =
+                  of_module_expr typ_vars e2 expected_module_typ_for_e2
+                in
+                return [ Some e2 ]
+          in
+          let application = Apply (e1, es) in
+          match is_module_typ_first_class with
+          | Some (Found module_type_path, module_type) ->
+            let* is_cast_needed = get_is_cast_needed module_type_path in
+            if not is_cast_needed then return application
+            else
+              let ident = Ident.create_local "functor_result" in
+              let* name = Name.of_ident false ident in
+              let path = Path.Pident ident in
+              let* casted_result =
+                cast_path path module_type module_type_path
+              in
+              return (LetVar (None, name, [], application, casted_result))
+          | _ -> return application
+        in
         match mod_desc with
         | Tmod_ident (path, _) -> (
             let* mixed_path = MixedPath.of_path false path in
@@ -1451,38 +1489,10 @@ and of_module_expr (typ_vars : Name.t Name.Map.t)
                 in
                 return (Functor (x, module_typ_arg, e))
             | Unit -> return e)
-        | Tmod_apply (e1, e2, _) -> (
-            let e1_mod_type = e1.mod_type in
-            let expected_module_typ_for_e2 =
-              match e1_mod_type with
-              | Mty_functor (Named (_, module_typ_arg), _) ->
-                  Some module_typ_arg
-              | _ -> None
-            in
-            let* e1 = of_module_expr typ_vars e1 None in
-            let* es =
-              match e1_mod_type with
-              | Mty_functor (Unit, _) -> return []
-              | _ ->
-                  let* e2 =
-                    of_module_expr typ_vars e2 expected_module_typ_for_e2
-                  in
-                  return [ Some e2 ]
-            in
-            let application = Apply (e1, es) in
-            match is_module_typ_first_class with
-            | Some (Found module_type_path, module_type) ->
-                let* is_cast_needed = get_is_cast_needed module_type_path in
-                if not is_cast_needed then return application
-                else
-                  let ident = Ident.create_local "functor_result" in
-                  let* name = Name.of_ident false ident in
-                  let path = Path.Pident ident in
-                  let* casted_result =
-                    cast_path path module_type module_type_path
-                  in
-                  return (LetVar (None, name, [], application, casted_result))
-            | _ -> return application)
+        | Tmod_apply (e1, e2, _) ->
+            apply_mod e1 (Some e2)
+        | Tmod_apply_unit e1 ->
+            apply_mod e1 None
         | Tmod_constraint (module_expr, mod_type, _, _) ->
             let module_type =
               match module_type with

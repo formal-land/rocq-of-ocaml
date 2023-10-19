@@ -1,0 +1,3 @@
+[submodule "vendor/merlin"]
+	path = vendor/merlin
+	url = git@github.com:smuenzel/merlin.git

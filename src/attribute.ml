@@ -76,7 +76,7 @@ let of_payload_string_string (error_message : string) (id : string)
         ("Expected two string parameters for this attribute.\n\n"
        ^ error_message)
 
-let of_payload_strings (error_message : string) (id : string)
+let of_payload_strings (error_message : string) (_id : string)
     (payload : Parsetree.payload) : string list Monad.t =
   match payload with
   | Parsetree.PStr
