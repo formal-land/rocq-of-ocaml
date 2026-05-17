@@ -24,20 +24,21 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 2 # for the code coverage tool
 
-      - name: Use OCaml ${{ matrix.ocaml-version }}
-        uses: avsm/setup-ocaml@v1
+      - name: Use OCaml ${{ matrix.ocaml-compiler }}
+        uses: ocaml/setup-ocaml@v3
         with:
-          ocaml-version: ${{ matrix.ocaml-version }}
+          ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-      - run: opam install ocamlformat.0.24.1
+      - run: opam install ocamlformat.0.28.1
       - run: opam exec -- make fmt-check
-      - run: opam pin add coq ${{ matrix.coq-version }}
+      - run: opam repo add rocq-released https://rocq-prover.org/opam/released
+      - run: opam install rocq-prover=${{ matrix.rocq-version }} rocq-core=${{ matrix.rocq-version }}
       - run: opam pin add coq-of-ocaml.dev . --no-action
       - run: opam depext conf-ruby --yes
-      - run: opam install coq-of-ocaml --deps-only
+      - run: opam install coq-of-ocaml --deps-only --with-test
       - run: opam install coq-of-ocaml --verbose
       - run: opam exec -- make test

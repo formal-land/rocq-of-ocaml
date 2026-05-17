@@ -8,21 +8,22 @@ bug-reports: "https://github.com/formal-land/coq-of-ocaml/issues"
 authors: ["Guillaume Claret"]
 license: "MIT"
 build: [
-  ["sh" "-c" "cd proofs && ./configure.sh"] {coq:installed}
-  [make "-C" "proofs" "-j%{jobs}%"] {coq:installed}
+  ["sh" "-c" "cd proofs && ./configure.sh"] {rocq-core:installed}
+  [make "-C" "proofs" "-j%{jobs}%"] {rocq-core:installed}
   ["dune" "build" "-p" name "-j" jobs]
   [make "test"] {with-test}
 ]
 install: [
-  [make "-C" "proofs" "install"] {coq:installed}
+  [make "-C" "proofs" "install"] {rocq-core:installed}
 ]
 depends: [
   "angstrom"
   "conf-ruby" {with-test}
   "csexp"
-  "dune" {>= "2.9"}
+  "dune" {>= "3.8"}
+  "merlin-lib"
   "menhir" {dev}
-  "ocaml" {>= "4.14" & < "4.15"}
+  "ocaml" {>= "5.4" & < "5.7"}
   "ocamlfind" {>= "1.5.2"}
   "result"
   "rocq-core" {>= "9.0" & < "9.1"}
