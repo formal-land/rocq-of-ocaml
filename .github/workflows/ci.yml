@@ -15,14 +15,10 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-        ocaml-version:
-          - 4.14.0
-        coq-version:
-          - 8.14.1
-          - 8.15.2
-          - 8.16.1
-          - 8.17.1
-          - 8.18.0
+        ocaml-compiler:
+          - 5.4.1
+        rocq-version:
+          - 9.2.0
 
     runs-on: ${{ matrix.os }}
 
@@ -31,7 +27,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 2 # for the code coverage tool
-          submodules: "true"
 
       - name: Use OCaml ${{ matrix.ocaml-version }}
         uses: avsm/setup-ocaml@v1
