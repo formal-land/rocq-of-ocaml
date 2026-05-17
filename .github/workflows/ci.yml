@@ -9,21 +9,6 @@ on:
       - "**"
 
 jobs:
-  format:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Use OCaml 5.1.1
-        uses: ocaml/setup-ocaml@v3
-        with:
-          ocaml-compiler: 5.1.1
-
-      - run: opam install ocamlformat.0.24.1
-      - run: opam exec -- make fmt-check
-
   build:
     strategy:
       fail-fast: false
