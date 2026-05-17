@@ -18,10 +18,11 @@ class Test
   end
 
   def coq_of_ocaml_cmd
+    local_executable = '_build/default/src/coqOfOCaml.exe'
     coq_of_ocaml =
       ARGV[0] == '--with-coverage' ?
         ['dune', 'exec', '--instrument-with', 'bisect_ppx', 'src/coqOfOCaml.exe', '--'] :
-        ['_build/default/src/coqOfOCaml.exe']
+        [File.executable?(local_executable) ? local_executable : 'coq-of-ocaml']
     cmd = [*coq_of_ocaml, '-output', '/dev/stdout', @source_file]
   end
 
@@ -33,7 +34,7 @@ class Test
 
   def reference
     file_name = generated_name
-    FileUtils.touch file_name unless File.exists?(file_name)
+    FileUtils.touch file_name unless File.exist?(file_name)
     File.read(file_name, :encoding => 'utf-8')
   end
 
