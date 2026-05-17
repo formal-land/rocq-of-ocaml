@@ -52,7 +52,7 @@ class Test
   end
 
   def coq_cmd
-    "coqc -R tests Tests -R proofs CoqOfOCaml -impredicative-set #{generated_name}"
+    "rocq c -R tests Tests -R proofs CoqOfOCaml -impredicative-set #{generated_name}"
   end
 
   def coq
@@ -62,7 +62,7 @@ class Test
 
   def extraction_cmd
     disable_fatal_warnings = "-lflags '-warn-error -a'"
-    "cd tests/extraction && coqc extract.v -R .. Tests -R ../../proofs CoqOfOCaml -impredicative-set && ocamlbuild #{disable_fatal_warnings} #{base_name}.byte && ./#{base_name}.byte"
+    "cd tests/extraction && rocq c -R .. Tests -R ../../proofs CoqOfOCaml -impredicative-set extract.v && ocamlbuild #{disable_fatal_warnings} #{base_name}.byte && ./#{base_name}.byte"
   end
 
   def extraction
@@ -106,7 +106,7 @@ class Tests
   end
 
   def coq
-    puts "\e[1mRunning coqc (compiles the reference files):\e[0m"
+    puts "\e[1mRunning Rocq (compiles the reference files):\e[0m"
     for test in @tests do
       print_result(test.coq)
       puts test.coq_cmd
