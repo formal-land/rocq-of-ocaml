@@ -9,6 +9,21 @@ on:
       - "**"
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use OCaml 5.1.1
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5.1.1
+
+      - run: opam install ocamlformat.0.24.1
+      - run: opam exec -- make fmt-check
+
   build:
     strategy:
       fail-fast: false
@@ -33,8 +48,6 @@ jobs:
         with:
           ocaml-compiler: ${{ matrix.ocaml-compiler }}
 
-      - run: opam install ocamlformat.0.28.1
-      - run: opam exec -- make fmt-check
       - run: opam repo add rocq-released https://rocq-prover.org/opam/released
       - run: opam install rocq-prover=${{ matrix.rocq-version }} rocq-core=${{ matrix.rocq-version }}
       - run: opam pin add coq-of-ocaml.dev . --no-action
