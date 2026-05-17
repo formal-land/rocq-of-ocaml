@@ -28,6 +28,7 @@ depends: [
   "result"
   "rocq-core" {>= "9.0" & < "9.1"}
   "rocq-prover" {>= "9.0" & < "9.1"}
+  "rocq-stdlib" {>= "9.0" & < "9.1"}
   "smart-print"
   "yojson" {>= "1.6.0"}
 ]
