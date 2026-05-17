@@ -40,5 +40,4 @@ jobs:
       - run: opam depext conf-ruby --yes
       - run: opam install coq-of-ocaml --deps-only
       - run: opam install coq-of-ocaml --verbose
-      - run: opam exec -- make coverage
-      - run: opam exec -- bisect-ppx-report send-to Codecov
+      - run: opam exec -- make test
