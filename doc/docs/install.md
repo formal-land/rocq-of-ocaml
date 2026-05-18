@@ -17,7 +17,7 @@ rocq-of-ocaml
 It should show you the help message.
 
 ## Current development version
-Install the development version to get the latest features. Clone the [GitHub repository](https://github.com/clarus/rocq-of-ocaml) with the sources and run in the root folder of the project:
+Install the development version to get the latest features. Clone the [GitHub repository](https://github.com/formal-land/rocq-of-ocaml) with the sources and run in the root folder of the project:
 ```sh
 opam pin add rocq-of-ocaml .
 ```
