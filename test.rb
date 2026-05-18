@@ -18,10 +18,11 @@ class Test
   end
 
   def coq_of_ocaml_cmd
+    local_executable = '_build/default/src/coqOfOCaml.exe'
     coq_of_ocaml =
       ARGV[0] == '--with-coverage' ?
         ['dune', 'exec', '--instrument-with', 'bisect_ppx', 'src/coqOfOCaml.exe', '--'] :
-        ['_build/default/src/coqOfOCaml.exe']
+        [File.executable?(local_executable) ? local_executable : 'coq-of-ocaml']
     cmd = [*coq_of_ocaml, '-output', '/dev/stdout', @source_file]
   end
 
@@ -33,7 +34,7 @@ class Test
 
   def reference
     file_name = generated_name
-    FileUtils.touch file_name unless File.exists?(file_name)
+    FileUtils.touch file_name unless File.exist?(file_name)
     File.read(file_name, :encoding => 'utf-8')
   end
 
@@ -51,7 +52,7 @@ class Test
   end
 
   def coq_cmd
-    "coqc -R tests Tests -R proofs CoqOfOCaml -impredicative-set #{generated_name}"
+    "rocq c -R tests Tests -R proofs CoqOfOCaml -impredicative-set #{generated_name}"
   end
 
   def coq
@@ -61,7 +62,7 @@ class Test
 
   def extraction_cmd
     disable_fatal_warnings = "-lflags '-warn-error -a'"
-    "cd tests/extraction && coqc extract.v -R .. Tests -R ../../proofs CoqOfOCaml -impredicative-set && ocamlbuild #{disable_fatal_warnings} #{base_name}.byte && ./#{base_name}.byte"
+    "cd tests/extraction && rocq c -R .. Tests -R ../../proofs CoqOfOCaml -impredicative-set extract.v && ocamlbuild #{disable_fatal_warnings} #{base_name}.byte && ./#{base_name}.byte"
   end
 
   def extraction
@@ -105,7 +106,7 @@ class Tests
   end
 
   def coq
-    puts "\e[1mRunning coqc (compiles the reference files):\e[0m"
+    puts "\e[1mRunning Rocq (compiles the reference files):\e[0m"
     for test in @tests do
       print_result(test.coq)
       puts test.coq_cmd

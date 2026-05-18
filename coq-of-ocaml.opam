@@ -8,32 +8,28 @@ bug-reports: "https://github.com/formal-land/coq-of-ocaml/issues"
 authors: ["Guillaume Claret"]
 license: "MIT"
 build: [
-  ["sh" "-c" "cd proofs && ./configure.sh"] {coq:installed}
-  [make "-C" "proofs" "-j%{jobs}%"] {coq:installed}
+  ["sh" "-c" "cd proofs && ./configure.sh"] {rocq-core:installed}
+  [make "-C" "proofs" "-j%{jobs}%"] {rocq-core:installed}
   ["dune" "build" "-p" name "-j" jobs]
   [make "test"] {with-test}
 ]
 install: [
-  [make "-C" "proofs" "install"] {coq:installed}
+  [make "-C" "proofs" "install"] {rocq-core:installed}
 ]
 depends: [
-  "bisect_ppx" {dev & >= "2.5.0"}
+  "angstrom"
   "conf-ruby" {with-test}
   "csexp"
-  "dune" {>= "2.8"}
-  "menhir" {dev}
-  "ocaml" {>= "4.12" & < "4.13"}
+  "dune" {>= "3.8"}
+  "merlin-lib"
+  "ocaml" {>= "5.4" & < "5.7"}
   "ocamlfind" {>= "1.5.2"}
   "result"
+  "rocq-core" {>= "9.0" & < "9.1"}
+  "rocq-prover" {>= "9.0" & < "9.1"}
+  "rocq-stdlib" {>= "9.0" & < "9.1"}
   "smart-print"
   "yojson" {>= "1.6.0"}
-  "angstrom"
-]
-depopts: [
-  "coq"
-]
-conflicts: [
-  "coq" {< "8.11"}
 ]
 tags: [
   "keyword:compilation"

@@ -6,6 +6,8 @@
     * handle the current position in the source [Loc.t];
     * handle the current environment [Env.t]. *)
 
+type import = Require of string * string | RequireImport of string
+
 module Command = struct
   type 'a t =
     | GetConfiguration : Configuration.t t
@@ -13,7 +15,7 @@ module Command = struct
     | GetEnv : Env.t t
     | GetEnvStack : Env.t list t
     | Raise : 'a * Error.Category.t * string -> 'a t
-    | Use : bool * string * string -> unit t
+    | Use : import -> unit t
     | UseUnsafeFixpoint : unit t
 end
 
@@ -30,21 +32,13 @@ type 'a t =
 
 module Notations = struct
   let return (x : 'a) : 'a t = Return x
-
   let ( let* ) (x : 'a t) (f : 'a -> 'b t) : 'b t = Bind (x, f)
-
   let ( >>= ) (x : 'a t) (f : 'a -> 'b t) : 'b t = Bind (x, f)
-
   let ( >> ) (x : 'a t) (y : 'b t) : 'b t = Bind (x, fun () -> y)
-
   let get_configuration : Configuration.t t = Command Command.GetConfiguration
-
   let get_documentation : string option t = Command Command.GetDocumentation
-
   let get_env : Env.t t = Command Command.GetEnv
-
   let get_env_stack : Env.t list t = Command Command.GetEnvStack
-
   let set_env (env : Env.t) (x : 'a t) : 'a t = Wrapper (Wrapper.EnvSet env, x)
 
   let set_loc (loc : Location.t) (x : 'a t) : 'a t =
@@ -56,9 +50,7 @@ module Notations = struct
       =
     Command (Command.Raise (value, category, message))
 
-  let use (import : bool) (base : string) (name : string) : unit t =
-    Command (Command.Use (import, base, name))
-
+  let use (import : import) : unit t = Command (Command.Use import)
   let use_unsafe_fixpoint : unit t = Command Command.UseUnsafeFixpoint
 
   let retrieve_unsafe_fixpoints (x : 'a t) : (bool * 'a) t =

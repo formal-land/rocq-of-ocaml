@@ -9,12 +9,12 @@ module AdtVariable = struct
     | Parameter name | Index name -> Name.to_string name
 
   let rec of_ocaml (typ : Types.type_expr) : t Monad.t =
-    match typ.Types.desc with
+    match Types.get_desc typ with
     | Tvar x | Tunivar x -> (
         match x with
         | None | Some "_" -> return Unknown
         | Some x -> Name.of_string false x >>= fun x -> return (Parameter x))
-    | Tlink typ | Tsubst typ -> of_ocaml typ
+    | Tlink typ | Tsubst (typ, _) -> of_ocaml typ
     | Tconstr (typ, _, _) ->
         Path.last typ |> Name.of_string false >>= fun typ -> return (Index typ)
     | _ -> return Error
@@ -78,8 +78,8 @@ let rec merge_typ_params (params1 : AdtVariable.t option list)
     case of a non-GADT type. *)
 let get_return_typ_params (defined_typ_params : t)
     (return_typ : Types.type_expr option) : t Monad.t =
-  match return_typ with
-  | Some { Types.desc = Tconstr (_, typs, _); _ } -> of_ocaml typs
+  match Option.map Types.get_desc return_typ with
+  | Some (Tconstr (_, typs, _)) -> of_ocaml typs
   | _ -> return defined_typ_params
 
 let rec adt_parameters (defined_typ_params : AdtVariable.t option list)

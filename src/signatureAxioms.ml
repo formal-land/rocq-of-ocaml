@@ -190,16 +190,18 @@ let rec of_signature (signature : Typedtree.signature) : t Monad.t =
                  of_first_class_types_signature module_name signature_path
                    incl_type final_env
                  >>= fun fields ->
-                 return (free_vars @ Value (module_name, [], typ) :: fields))
+                 return (free_vars @ (Value (module_name, [], typ) :: fields)))
          | Tsig_modsubst _ ->
              raise
                [ Error "unhandled_module_substitution" ]
                NotSupported "We do not handle module substitution"
-         | Tsig_modtype { mtd_type = None; _ } ->
+         | Tsig_modtype { mtd_type = None; _ }
+         | Tsig_modtypesubst { mtd_type = None; _ } ->
              raise
                [ Error "abstract_module_type" ]
                NotSupported "Abstract module type not handled"
-         | Tsig_modtype { mtd_id; mtd_type = Some { mty_desc; _ }; _ } -> (
+         | Tsig_modtype { mtd_id; mtd_type = Some { mty_desc; _ }; _ }
+         | Tsig_modtypesubst { mtd_id; mtd_type = Some { mty_desc; _ }; _ } -> (
              let* name = Name.of_ident false mtd_id in
              match mty_desc with
              | Tmty_signature signature ->
@@ -252,8 +254,8 @@ let rec of_signature (signature : Typedtree.signature) : t Monad.t =
                 the environment. This is useful for example for the detection of
                 phantom types. *)
              set_env final_env
-               ( TypeDefinition.of_ocaml typs >>= fun typ_definition ->
-                 return [ TypDefinition typ_definition ] )
+               (let* defs = TypeDefinition.of_ocaml typs in
+                return (List.map (fun def -> TypDefinition def) defs))
          | Tsig_typext { tyext_constructors; _ } ->
              let* typ_defs =
                tyext_constructors
