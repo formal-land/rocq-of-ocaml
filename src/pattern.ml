@@ -188,7 +188,7 @@ let rec has_or_patterns (p : t) : bool =
 let rec flatten_or (p : t) : t list =
   match p with Or (p1, p2) -> flatten_or p1 @ flatten_or p2 | _ -> [ p ]
 
-(** Pretty-print a pattern to Coq (inside parenthesis if the [paren] flag is set). *)
+(** Pretty-print a pattern to Rocq (inside parenthesis if the [paren] flag is set). *)
 let rec to_coq (paren : bool) (p : t) : SmartPrint.t =
   match p with
   | Any -> !^"_"

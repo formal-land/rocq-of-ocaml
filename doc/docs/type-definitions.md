@@ -3,28 +3,28 @@ id: type-definitions
 title: Type definitions
 ---
 
-`coq-of-ocaml` generates the Coq definitions corresponding to OCaml's type definitions.
+`rocq-of-ocaml` generates the Rocq definitions corresponding to OCaml's type definitions.
 
 ## Single type definitions
 ### Synonyms
-Type synonyms are transformed to Coq definitions:
+Type synonyms are transformed to Rocq definitions:
 ```ocaml
 type string_list = string list
 ```
 generates:
-```coq
+```rocq
 Definition string_list := list string.
 ```
 
 ### Records
-OCaml records are transformed to Coq records, namespaced into a module to prevent name collisions. The transformation includes the `with_` operators for field substitutions:
+OCaml records are transformed to Rocq records, namespaced into a module to prevent name collisions. The transformation includes the `with_` operators for field substitutions:
 ```ocaml
 type answer = {
   code : int;
   message : string }
 ```
 generates:
-```coq
+```rocq
 Module answer.
   Record record := {
     code : Z;
@@ -38,14 +38,14 @@ Definition answer := answer.record.
 ```
 
 ### Algebraic data types
-Algebraic data types generate an inductive definition in Coq:
+Algebraic data types generate an inductive definition in Rocq:
 ```ocaml
 type 'a tree =
   | Leaf of 'a
   | Node of 'a tree * 'a tree
 ```
 generates:
-```coq
+```rocq
 Inductive tree (a : Set) : Set :=
 | Leaf : a -> tree a
 | Node : (tree a) -> (tree a) -> tree a.
@@ -62,7 +62,7 @@ type element =
   | Rectangle of { height : int; width : int}
 ```
 generates:
-```coq
+```rocq
 Module element.
   Module Point.
     Record record {x y : Set} := {
@@ -93,7 +93,7 @@ The various forms of extensible types are ignored:
 exception Too_long of string
 ```
 generates:
-```coq
+```rocq
 (* exception Too_long *)
 ```
 and:
@@ -101,12 +101,12 @@ and:
 type error += Lazy_script_decode
 ```
 generates:
-```coq
+```rocq
 (* type_extension *)
 ```
 
 ### Polymorphic variants
-The polymorphic variant types are converted to the corresponding Coq inductive as an approximation:
+The polymorphic variant types are converted to the corresponding Rocq inductive as an approximation:
 ```ocaml
 type json =
   [ `O of (string * json) list
@@ -117,7 +117,7 @@ type json =
   | `String of string ]
 ```
 generates:
-```coq
+```rocq
 Inductive json : Set :=
 | Bool : bool -> json
 | Null : json
@@ -129,7 +129,7 @@ Inductive json : Set :=
 
 ## Mutually recursive types
 ### With synonyms
-Coq only accept mutually recursive types on inductive definitions. A known trick is to use a Coq notation to simulate mutual definitions on type synonyms:
+Rocq only accept mutually recursive types on inductive definitions. A known trick is to use a Rocq notation to simulate mutual definitions on type synonyms:
 ```ocaml
 type path = path_item list
 
@@ -139,7 +139,7 @@ and path_item =
   | Star  (** Any / every field or index. *)
 ```
 generates:
-```coq
+```rocq
 Reserved Notation "'path".
 
 Inductive path_item : Set :=
@@ -153,7 +153,7 @@ Definition path := 'path.
 ```
 
 ### With records
-For mutual definitions with a record, `coq-of-ocaml` first generate record skeletons, so that the record definitions are transformed into type synonyms:
+For mutual definitions with a record, `rocq-of-ocaml` first generate record skeletons, so that the record definitions are transformed into type synonyms:
 ```ocaml
 type 'o t =
   [ `Ok of 'o (* 200 *)
@@ -163,7 +163,7 @@ type 'o t =
 and 'a stream = {next : unit -> 'a option Lwt.t; shutdown : unit -> unit}
 ```
 generates:
-```coq
+```rocq
 Reserved Notation "'stream".
 
 Module stream.
@@ -198,7 +198,7 @@ Arguments Error {_}.
 ```
 
 ## GADTs
-The type annotations on GADTs do not directly translate to Coq annotations compatible with the dependent pattern-matching of Coq. The solution adopted by `coq-of-ocaml` is to erase the GADT type annotations, and let the user manually add axioms to validate pattern-matching on GADT expressions.
+The type annotations on GADTs do not directly translate to Rocq annotations compatible with the dependent pattern-matching of Rocq. The solution adopted by `rocq-of-ocaml` is to erase the GADT type annotations, and let the user manually add axioms to validate pattern-matching on GADT expressions.
 
 For example:
 ```ocaml
@@ -213,7 +213,7 @@ type (_, _) comparable_struct =
       -> (('a, 'b) pair, comb) comparable_struct
 ```
 translates to:
-```coq
+```rocq
 Reserved Notation "'comparable_struct".
 
 Inductive comparable_struct_gadt : Set :=

@@ -32,7 +32,7 @@ let exp (context : MonadEval.Context.t) (typedtree : Mtyper.typedtree)
   let has_errors = match errors with [] -> false | _ :: _ -> true in
   (value, imports, error_message, has_errors)
 
-(** Display on stdout the conversion in Coq of an OCaml structure. *)
+(** Display on stdout the conversion in Rocq of an OCaml structure. *)
 let of_ocaml (context : MonadEval.Context.t) (typedtree : Mtyper.typedtree)
     (typedtree_errors : exn list) (source_file_name : string)
     (source_file_content : string) (output_file_name : string option)
@@ -98,7 +98,7 @@ let main () =
     [
       ( "-config",
         Arg.String (fun value -> configuration_file_name := Some value),
-        "file   the configuration file of coq-of-ocaml" );
+        "file   the configuration file of rocq-of-ocaml" );
       ( "-output",
         Arg.String (fun value -> output_file_name := Some value),
         "file   the name of the .v file to output" );
@@ -107,7 +107,7 @@ let main () =
         "    produce the list of error messages in a JSON file" );
     ]
   in
-  let usage_msg = "Usage:\n  coq-of-ocaml [options] file.ml(i)\nOptions are:" in
+  let usage_msg = "Usage:\n  rocq-of-ocaml [options] file.ml(i)\nOptions are:" in
   Arg.parse options (fun arg -> file_name := Some arg) usage_msg;
   match !file_name with
   | None -> Arg.usage options usage_msg

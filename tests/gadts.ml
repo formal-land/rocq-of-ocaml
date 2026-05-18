@@ -11,7 +11,7 @@ type 'a expr =
   | Pair : 'a expr * 'b expr -> ('a * 'b) expr
 
 let rec proj_int (e : int expr) : int =
-  match[@coq_match_with_default] e with
+  match[@rocq_match_with_default] e with
   | Int n -> n
   | Sum (e1, e2) -> proj_int e1 + proj_int e2
   | _ -> .
@@ -21,10 +21,10 @@ type 'a term =
   | T_String : string -> string term
   | T_Sum : int term * int term -> int term
   (* | T_Pair : 'a term * 'b term -> ('a * 'b) term *)
-[@@coq_tag_gadt]
+[@@rocq_tag_gadt]
 
 let rec get_int (e : int term) : int =
-  match[@coq_tagged_match][@coq_match_with_default] e with
+  match[@rocq_tagged_match][@rocq_match_with_default] e with
   | T_Int n -> n
   | T_Sum (e1, e2) -> get_int e1 + get_int e2
   | _ -> .
@@ -40,10 +40,10 @@ type 'a one_case =
   | Impossible : bool one_case
 
 let x : int =
-  match[@coq_match_with_default] SingleCase with
+  match[@rocq_match_with_default] SingleCase with
   | SingleCase -> 0
 
-type[@coq_force_gadt] 'a gadt_list =
+type[@rocq_force_gadt] 'a gadt_list =
   | GNil
   | GCons of 'a * 'a gadt_list
 
@@ -55,7 +55,7 @@ module With_cast = struct
     | Bool : bool int_or_bool
 
   let to_int (type a) (kind : a int_or_bool) (x : a) : int =
-    match[@coq_match_gadt] (kind, x) with
+    match[@rocq_match_gadt] (kind, x) with
     | (Int, (x : int)) -> x
     | (Bool, (x : bool)) -> if x then 1 else 0
 end

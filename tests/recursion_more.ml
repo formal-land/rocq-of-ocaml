@@ -15,7 +15,7 @@ let rec double_list l =
   | [] -> l
   | n :: l -> double n :: double_list l
 
-and[@coq_mutual_as_notation] double n = 2 * n
+and[@rocq_mutual_as_notation] double n = 2 * n
 
 type 'a tree =
   | Leaf of 'a
@@ -26,9 +26,9 @@ let rec sum (t : int tree) =
   | Leaf n -> n
   | Node ts -> sums ts
 
-and[@coq_mutual_as_notation] zero () = 0
+and[@rocq_mutual_as_notation] zero () = 0
 
-and[@coq_mutual_as_notation][@coq_struct "ts"] sums (ts : int tree list) =
+and[@rocq_mutual_as_notation][@rocq_struct "ts"] sums (ts : int tree list) =
   match ts with
   | [] -> zero ()
   | t :: ts -> sum t + sums ts
@@ -39,15 +39,15 @@ let rec count t =
   | Leaf l -> length l
   | Node ts -> counts ts
 
-and[@coq_mutual_as_notation][@coq_struct "ts"] counts ts =
+and[@rocq_mutual_as_notation][@rocq_struct "ts"] counts ts =
   match ts with
   | [] -> 0
   | t :: ts -> count t + counts ts
 
-and[@coq_mutual_as_notation] length l =
+and[@rocq_mutual_as_notation] length l =
   List.length l
 
-let[@coq_struct "n_value"] rec factorial n =
+let[@rocq_struct "n_value"] rec factorial n =
   if n = 0 then
     1
   else

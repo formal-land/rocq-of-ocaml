@@ -1,5 +1,5 @@
 open Monad.Notations
-(** The OCaml attributes to customize the Coq generation. *)
+(** The OCaml attributes to customize the Rocq generation. *)
 
 type t =
   | AxiomWithReason
@@ -153,18 +153,21 @@ let of_attributes (attributes : Typedtree.attributes) : t list Monad.t =
          set_loc attr_name.Asttypes.loc
            (let id = attr_name.Asttypes.txt in
             match id with
-            | "coq_axiom" ->
+            | _ when Util.String.starts_with "coq_" id ->
                 raise None Unexpected
-                  "Depreacated attribute. Use @coq_axiom_with_reason instead."
-            | "coq_axiom_with_reason" ->
+                  "Attributes were renamed from @coq_* to @rocq_*."
+            | "rocq_axiom" ->
+                raise None Unexpected
+                  "Deprecated attribute. Use @rocq_axiom_with_reason instead."
+            | "rocq_axiom_with_reason" ->
                 let error_message = "Give a reason for this axiom" in
                 let* _ = of_payload_string error_message id attr_payload in
                 return (Some AxiomWithReason)
-            | "coq_cast" -> return (Some Cast)
-            | "coq_force_gadt" -> return (Some ForceGadt)
-            | "coq_grab_existentials" -> return (Some GrabExistentials)
-            | "coq_tag_gadt" -> return (Some TaggedGadt)
-            | "coq_implicit" ->
+            | "rocq_cast" -> return (Some Cast)
+            | "rocq_force_gadt" -> return (Some ForceGadt)
+            | "rocq_grab_existentials" -> return (Some GrabExistentials)
+            | "rocq_tag_gadt" -> return (Some TaggedGadt)
+            | "rocq_implicit" ->
                 let error_message =
                   "Give two values such as \"A\" \"unit\" to define an \
                    implicit type \"(A := unit)\""
@@ -173,19 +176,19 @@ let of_attributes (attributes : Typedtree.attributes) : t list Monad.t =
                   of_payload_string_string error_message id attr_payload
                 in
                 return (Some (Implicit (name, typ)))
-            | "coq_include_without" ->
+            | "rocq_include_without" ->
                 let error_message =
                   "Give a list of item names not to include"
                 in
                 let* names = of_payload_strings error_message id attr_payload in
                 return (Some (IncludeWithout names))
-            | "coq_match_gadt" -> return (Some MatchGadt)
-            | "coq_match_gadt_with_result" -> return (Some MatchGadtWithResult)
-            | "coq_match_with_default" -> return (Some MatchWithDefault)
-            | "coq_mutual_as_notation" -> return (Some MutualAsNotation)
-            | "coq_plain_module" -> return (Some PlainModule)
-            | "coq_phantom" -> return (Some Phantom)
-            | "coq_struct" ->
+            | "rocq_match_gadt" -> return (Some MatchGadt)
+            | "rocq_match_gadt_with_result" -> return (Some MatchGadtWithResult)
+            | "rocq_match_with_default" -> return (Some MatchWithDefault)
+            | "rocq_mutual_as_notation" -> return (Some MutualAsNotation)
+            | "rocq_plain_module" -> return (Some PlainModule)
+            | "rocq_phantom" -> return (Some Phantom)
+            | "rocq_struct" ->
                 let error_message =
                   "Give the name of the parameter to recurse on"
                 in
@@ -193,11 +196,11 @@ let of_attributes (attributes : Typedtree.attributes) : t list Monad.t =
                   of_payload_string error_message id attr_payload
                 in
                 return (Some (Struct payload))
-            | "coq_tagged_match" -> return (Some TaggedMatch)
-            | "coq_type_annotation" -> return (Some TypAnnotation)
+            | "rocq_tagged_match" -> return (Some TaggedMatch)
+            | "rocq_type_annotation" -> return (Some TypAnnotation)
             | _ ->
-                if Util.String.starts_with "coq_" id then
-                  raise None Unexpected "Unknown attribute starting with @coq_."
+                if Util.String.starts_with "rocq_" id then
+                  raise None Unexpected "Unknown attribute starting with @rocq_."
                 else return None))
 
 let has_axiom_with_reason (attributes : t list) : bool =
@@ -256,7 +259,7 @@ let has_precise_signature (attributes : Typedtree.attributes) : bool =
   attributes
   |> List.exists (fun { Parsetree.attr_name; _ } ->
          let id = attr_name.Asttypes.txt in
-         match id with "coq_precise_signature" -> true | _ -> false)
+         match id with "rocq_precise_signature" -> true | _ -> false)
 
 let get_structs (attributes : t list) : string list =
   attributes

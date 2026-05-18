@@ -1,8 +1,8 @@
--R . CoqOfOCaml
+-R . RocqOfOCaml
 -arg -impredicative-set
 
 Basics.v
-CoqOfOCaml.v
+RocqOfOCaml.v
 Libraries.v
 List.v
 Settings.v

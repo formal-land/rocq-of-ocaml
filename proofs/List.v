@@ -1,6 +1,6 @@
 Require Import Libraries.
 Require Import Basics.
-Require Import Program.Program.
+From Stdlib Require Import Program.Program.
 
 Local Open Scope Z_scope.
 Import ListNotations.

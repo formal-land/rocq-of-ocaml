@@ -1,4 +1,4 @@
-Require Coq.Strings.String.
+From Stdlib Require Strings.String.
 
 Global Set Primitive Projections.
 Global Set Printing Projections.

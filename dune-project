@@ -1,2 +1,2 @@
 (lang dune 2.9)
-(name coq-of-ocaml)
+(name rocq-of-ocaml)

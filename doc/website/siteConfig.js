@@ -20,11 +20,11 @@ const users = [
   },
 ];
 
-const baseUrl = '/coq-of-ocaml/';
+const baseUrl = '/rocq-of-ocaml/';
 
 const siteConfig = {
-  title: 'coq-of-ocaml', // Title for your website.
-  tagline: 'Import OCaml programs to Coq',
+  title: 'rocq-of-ocaml', // Title for your website.
+  tagline: 'Import OCaml programs to Rocq',
   url: 'https://foobar-land.github.io', // Your website URL
   baseUrl, // Base URL for your project */
   // For github.io type URLs, you would set the url and baseUrl like:
@@ -32,7 +32,7 @@ const siteConfig = {
   //   baseUrl: '/test-site/',
 
   // Used for publishing and more
-  projectName: 'coq-of-ocaml-doc',
+  projectName: 'rocq-of-ocaml-doc',
   organizationName: 'clarus',
   // For top-level user or org sites, the organization is still the same.
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
@@ -42,7 +42,7 @@ const siteConfig = {
   headerLinks: [
     {doc: 'introduction', label: 'Docs'},
     {doc: 'examples', label: 'Examples'},
-    {external: true, href: 'https://github.com/clarus/coq-of-ocaml', label: 'GitHub'},
+    {external: true, href: 'https://github.com/clarus/rocq-of-ocaml', label: 'GitHub'},
   ],
 
   // If you have users set above, you add it here:
@@ -108,7 +108,7 @@ const siteConfig = {
 
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
-    repoUrl: 'https://github.com/clarus/coq-of-ocaml',
+    repoUrl: 'https://github.com/clarus/rocq-of-ocaml',
 };
 
 module.exports = siteConfig;

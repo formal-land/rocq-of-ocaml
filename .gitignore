@@ -26,6 +26,6 @@ _build/
 proofs/Makefile
 tests/extraction
 .merlin
-coq-of-ocaml.install
+*.install
 *.coverage
 _coverage/

@@ -35,8 +35,8 @@ jobs:
 
       - run: opam repo add rocq-released https://rocq-prover.org/opam/released
       - run: opam install rocq-prover=${{ matrix.rocq-version }}
-      - run: opam pin add coq-of-ocaml.dev . --no-action
+      - run: opam pin add rocq-of-ocaml.dev . --no-action
       - run: opam depext conf-ruby --yes
-      - run: opam install coq-of-ocaml --deps-only --with-test
-      - run: opam install coq-of-ocaml --verbose
+      - run: opam install rocq-of-ocaml --deps-only --with-test
+      - run: opam install rocq-of-ocaml --verbose
       - run: opam exec -- make test

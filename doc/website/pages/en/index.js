@@ -99,7 +99,7 @@ class Index extends React.Component {
           </a>
         </h2>
         <MarkdownBlock>
-          We develop `coq-of-ocaml` at [Nomadic Labs](https://www.nomadic-labs.com/). This project initially started as part of a [PhD](http://www.theses.fr/2018USPCC068) at the university of [Paris&nbsp;7](https://u-paris.fr/). We use `coq-of-ocaml` to formally verify the implementation of the crypto-currency [Tezos](https://tezos.com/). We are open to other applications for software verification.
+          We develop `rocq-of-ocaml` at [Nomadic Labs](https://www.nomadic-labs.com/). This project initially started as part of a [PhD](http://www.theses.fr/2018USPCC068) at the university of [Paris&nbsp;7](https://u-paris.fr/). We use `rocq-of-ocaml` to formally verify the implementation of the crypto-currency [Tezos](https://tezos.com/). We are open to other applications for software verification.
         </MarkdownBlock>
         <Button href="mailto:contact@nomadic-labs.com">
           Contact us
@@ -141,7 +141,7 @@ class Index extends React.Component {
       <Block background="light">
         {[
           {
-            content: '[Formally verify](https://en.wikipedia.org/wiki/Formal_verification) program implementations with the [Coq](https://coq.inria.fr/) proof system. Prevent bugs right from the start. For critical applications.',
+            content: '[Formally verify](https://en.wikipedia.org/wiki/Formal_verification) program implementations with the [Rocq](https://rocq-prover.org/) proof system. Prevent bugs right from the start. For critical applications.',
             image: `${baseUrl}img/undraw_through_the_desert.svg`,
             imageAlign: 'right',
             title: 'Safe programming',
@@ -166,7 +166,7 @@ class Index extends React.Component {
             title: 'Module system',
           },
           {
-            content: 'Generate some Coq even in case of errors.',
+            content: 'Generate some Rocq even in case of errors.',
             image: `${baseUrl}img/undraw_convert.svg`,
             imageAlign: 'top',
             title: 'Progressive imports',

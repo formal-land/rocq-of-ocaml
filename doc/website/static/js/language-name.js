@@ -21,6 +21,6 @@ window.addEventListener('load', function() {
     });
   }
 
-  addLanguage('.hljs.language-coq', language('Coq'));
+  addLanguage('.hljs.language-rocq', language('Rocq'));
   addLanguage('.hljs.language-ocaml', language('OCaml'));
 });
