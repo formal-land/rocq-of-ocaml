@@ -50,7 +50,7 @@ class Footer extends React.Component {
           </div>
           <div>
             <h5>Community</h5>
-            <a href="https://github.com/clarus/rocq-of-ocaml/issues"
+            <a href="https://github.com/formal-land/rocq-of-ocaml/issues"
               target="_blank"
             >
               Issues
@@ -65,7 +65,7 @@ class Footer extends React.Component {
             <h5>More</h5>
             {/* <a href={`${this.props.config.baseUrl}blog`}>Blog</a> */}
             <a
-              href="https://github.com/clarus/rocq-of-ocaml"
+              href="https://github.com/formal-land/rocq-of-ocaml"
               target="_blank"
             >
               GitHub
@@ -74,7 +74,7 @@ class Footer extends React.Component {
               className="github-button"
               href={this.props.config.repoUrl}
               data-icon="octicon-star"
-              data-count-href="/clarus/rocq-of-ocaml/stargazers"
+              data-count-href="/formal-land/rocq-of-ocaml/stargazers"
               data-show-count="true"
               data-count-aria-label="# stargazers on GitHub"
               aria-label="Star this project on GitHub">

@@ -33,7 +33,7 @@ const siteConfig = {
 
   // Used for publishing and more
   projectName: 'rocq-of-ocaml-doc',
-  organizationName: 'clarus',
+  organizationName: 'formal-land',
   // For top-level user or org sites, the organization is still the same.
   // e.g., for the https://JoelMarcey.github.io site, it would be set like...
   //   organizationName: 'JoelMarcey'
@@ -42,7 +42,7 @@ const siteConfig = {
   headerLinks: [
     {doc: 'introduction', label: 'Docs'},
     {doc: 'examples', label: 'Examples'},
-    {external: true, href: 'https://github.com/clarus/rocq-of-ocaml', label: 'GitHub'},
+    {external: true, href: 'https://github.com/formal-land/rocq-of-ocaml', label: 'GitHub'},
   ],
 
   // If you have users set above, you add it here:
@@ -108,7 +108,7 @@ const siteConfig = {
 
   // You may provide arbitrary config keys to be used as needed by your
   // template. For example, if you need your repo's URL...
-    repoUrl: 'https://github.com/clarus/rocq-of-ocaml',
+    repoUrl: 'https://github.com/formal-land/rocq-of-ocaml',
 };
 
 module.exports = siteConfig;

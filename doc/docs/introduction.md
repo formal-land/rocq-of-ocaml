@@ -48,7 +48,7 @@ We do not do special treatments for the termination of fixpoints. We disable ter
 We support modules, module types, functors and first-class modules. We generate either Rocq modules or polymorphic records depending on the case. We generate axioms for `.mli` files to help formalizations, but importing `.mli` files should not be necessary for a project to compile in Rocq.
 
 ## Status
-`rocq-of-ocaml` is under active development at [Nomadic Labs](https://www.nomadic-labs.com/) to get a [Rocq formalization](https://gitlab.com/nomadic-labs/coq-tezos-of-ocaml) of the crypto-currency [Tezos](https://tezos.com/). To contact us, you can open an [issue](https://github.com/clarus/rocq-of-ocaml/issues) on GitHub or send [an email](mailto:contact@nomadic-labs.com) to Nomadic Labs.
+`rocq-of-ocaml` is under active development at [Nomadic Labs](https://www.nomadic-labs.com/) to get a [Rocq formalization](https://gitlab.com/nomadic-labs/coq-tezos-of-ocaml) of the crypto-currency [Tezos](https://tezos.com/). To contact us, you can open an [issue](https://github.com/formal-land/rocq-of-ocaml/issues) on GitHub or send [an email](mailto:contact@nomadic-labs.com) to Nomadic Labs.
 
 ## Workflow
 `rocq-of-ocaml` works by compiling the OCaml files one by one. Thanks to Merlin, we get access to the typing environment of each file. Thus names referencing external definitions are properly interpreted.

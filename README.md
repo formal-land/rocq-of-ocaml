@@ -1,4 +1,4 @@
-# 🐓🐫 rocq-of-ocaml [![CI](https://github.com/clarus/rocq-of-ocaml/workflows/CI/badge.svg?branch=master)](https://github.com/clarus/rocq-of-ocaml/actions?query=workflow%3ACI)
+# 🐓🐫 rocq-of-ocaml [![CI](https://github.com/formal-land/rocq-of-ocaml/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/formal-land/rocq-of-ocaml/actions/workflows/ci.yml)
 > Formal verification for OCaml programs
 
 Translate OCaml programs to **similar-looking code in Rocq**, an extremely expressive formal language to express and formally verify **any kinds of properties** (preservation of invariants, absence of assert failures, backward compatibility, ...). We use `rocq-of-ocaml` to formally verify the "protocol" (core part) of the crypto-currency [Tezos](https://tezos.com/), composed of **100,000 lines of OCaml**. We cover most of the code: **80% of files** have at least one formally verified property in the project [coq-tezos-of-ocaml](https://gitlab.com/formal-land/coq-tezos-of-ocaml). This is formal verification at a **large scale**.
@@ -18,7 +18,7 @@ The guiding idea of `rocq-of-ocaml` is [TypeScript](https://www.typescriptlang.
 There are still some open problems with `rocq-of-ocaml`, like the axiom-free compilation of [GADTs](https://blog.janestreet.com/why-gadts-matter-for-performance/) (an ongoing project). If you are willing to work on a particular project, you can contact us at [&#099;&#111;&#110;&#116;&#097;&#099;&#116;&#064;formal&#046;&#108;&#097;&#110;&#100;](mailto:&#099;&#111;&#110;&#116;&#097;&#099;&#116;&#064;formal&#046;&#108;&#097;&#110;&#100;).
 
 <p align="center">
-  <img alt="happiness and proofs" width="347" height="auto" src="https://raw.githubusercontent.com/clarus/rocq-of-ocaml/master/doc/proofs_happiness.png" />
+  <img alt="happiness and proofs" width="347" height="auto" src="https://raw.githubusercontent.com/formal-land/rocq-of-ocaml/master/doc/proofs_happiness.png" />
 </p>
 
 ## Example
@@ -116,7 +116,7 @@ If you want to contribute to the project, you can submit a pull-requests.
 ### Build with opam
 To install the current development version:
 ```
-opam pin add https://github.com/clarus/rocq-of-ocaml.git#master
+opam pin add https://github.com/formal-land/rocq-of-ocaml.git#master
 ```
 
 ### Build manually

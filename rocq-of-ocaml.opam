@@ -1,7 +1,7 @@
 version: "dev"
 
 opam-version: "2.0"
-maintainer: "dev@clarus.me"
+maintainer: "contact@formal.land"
 homepage: "https://formal.land/docs/tools/rocq-of-ocaml/introduction"
 dev-repo: "git+https://github.com/formal-land/rocq-of-ocaml.git"
 bug-reports: "https://github.com/formal-land/rocq-of-ocaml/issues"
