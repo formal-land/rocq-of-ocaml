@@ -1,0 +1,7 @@
+[
+  {
+    "category": "unexpected",
+    "location": { "end": 30, "start": 18 },
+    "message": "Unknown attribute starting with @rocq_."
+  }
+]

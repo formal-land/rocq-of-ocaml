@@ -2,7 +2,7 @@ version: "dev"
 
 opam-version: "2.0"
 maintainer: "dev@clarus.me"
-homepage: "https://github.com/formal-land/rocq-of-ocaml"
+homepage: "https://formal.land/docs/tools/rocq-of-ocaml/introduction"
 dev-repo: "git+https://github.com/formal-land/rocq-of-ocaml.git"
 bug-reports: "https://github.com/formal-land/rocq-of-ocaml/issues"
 authors: ["Guillaume Claret"]
@@ -18,6 +18,8 @@ install: [
 ]
 depends: [
   "angstrom"
+  "bisect_ppx" {with-test}
+  "cmdliner" {with-test & < "2.0"}
   "conf-ruby" {with-test}
   "csexp"
   "dune" {>= "3.8"}

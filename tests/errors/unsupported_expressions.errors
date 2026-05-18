@@ -1,0 +1,300 @@
+--- tests/errors/unsupported_expressions.ml:4:3 ----------------------------- side_effect (1/16) ---
+
+  2 | 
+  3 | let set_field (record : mutable_record) =
+> 4 |   record.field <- 1
+  5 | 
+  6 | let array_value =
+  7 |   [| 1; 2; 3 |]
+
+
+Set record field not handled.
+
+--- tests/errors/unsupported_expressions.ml:7:3 --------------------------- not_supported (2/16) ---
+
+   5 | 
+   6 | let array_value =
+>  7 |   [| 1; 2; 3 |]
+   8 | 
+   9 | let while_loop () =
+  10 |   let counter = ref 0 in
+
+
+Arrays not handled.
+
+--- tests/errors/unsupported_expressions.ml:11:3 ---------------------------- side_effect (3/16) ---
+
+   9 | let while_loop () =
+  10 |   let counter = ref 0 in
+> 11 |   while !counter < 2 do
+> 12 |     counter := !counter + 1
+> 13 |   done
+  14 | 
+  15 | let for_loop () =
+  16 |   for index = 0 to 2 do
+
+
+While loops not handled.
+
+--- tests/errors/unsupported_expressions.ml:16:3 ---------------------------- side_effect (4/16) ---
+
+  14 | 
+  15 | let for_loop () =
+> 16 |   for index = 0 to 2 do
+> 17 |     ignore index
+> 18 |   done
+  19 | 
+  20 | class simple_object =
+  21 |   object
+
+
+For loops not handled.
+
+--- tests/errors/unsupported_expressions.ml:20:1 -------------------------- not_supported (5/16) ---
+
+  18 |   done
+  19 | 
+> 20 | class simple_object =
+> 21 |   object
+> 22 |     val mutable field = 0
+> 23 |     method get = field
+> 24 |     method set value = field <- value
+> 25 |   end
+  26 | 
+  27 | let object_value =
+  28 |   object
+
+
+Structure item `class` not handled.
+
+--- tests/errors/unsupported_expressions.ml:27:5 -------------------------- not_supported (6/16) ---
+
+  25 |   end
+  26 | 
+> 27 | let object_value =
+  28 |   object
+  29 |     method get = 1
+  30 |   end
+
+
+We do not handle this form of object types
+
+--- tests/errors/unsupported_expressions.ml:28:3 -------------------------- not_supported (7/16) ---
+
+  26 | 
+  27 | let object_value =
+> 28 |   object
+> 29 |     method get = 1
+> 30 |   end
+  31 | 
+  32 | let send_value =
+  33 |   object_value#get
+
+
+Creation of objects is not handled
+
+--- tests/errors/unsupported_expressions.ml:33:3 -------------------------- not_supported (8/16) ---
+
+  31 | 
+  32 | let send_value =
+> 33 |   object_value#get
+  34 | 
+  35 | let new_object =
+  36 |   new simple_object
+
+
+Sending method message is not handled
+
+--- tests/errors/unsupported_expressions.ml:36:3 -------------------------- not_supported (9/16) ---
+
+  34 | 
+  35 | let new_object =
+> 36 |   new simple_object
+  37 | 
+  38 | let lazy_value =
+  39 |   lazy 1
+
+
+Creation of new objects is not handled
+
+--- tests/errors/unsupported_expressions.ml:39:3 --------------------------- side_effect (10/16) ---
+
+  37 | 
+  38 | let lazy_value =
+> 39 |   lazy 1
+  40 | 
+  41 | let assertion =
+  42 |   assert true
+
+
+Lazy expressions are not handled
+
+--- tests/errors/unsupported_expressions.ml:42:3 --------------------------- side_effect (11/16) ---
+
+  40 | 
+  41 | let assertion =
+> 42 |   assert true
+  43 | 
+  44 | let try_with value =
+  45 |   try value with
+
+
+Assert instruction is not handled.
+
+--- tests/errors/unsupported_expressions.ml:45:3 --------------------------- side_effect (12/16) ---
+
+  43 | 
+  44 | let try_with value =
+> 45 |   try value with
+> 46 |   | Failure _ -> 0
+  47 | 
+  48 | let try_with_name value =
+  49 |   try value with
+
+
+Use a trivial matching for the `with` clause, like:
+
+    try ... with exn -> ...
+
+You can do a second matching on `exn` in the error handler if needed.
+
+--- tests/errors/unsupported_expressions.ml:49:3 --------------------------- side_effect (13/16) ---
+
+  47 | 
+  48 | let try_with_name value =
+> 49 |   try value with
+> 50 |   | exn -> 0
+  51 | 
+  52 | let try_with_any value =
+  53 |   try value with
+
+
+Try-with are not handled
+
+Alternative: use sum types ("option", "result", ...) to represent an error case.
+
+--- tests/errors/unsupported_expressions.ml:53:3 --------------------------- side_effect (14/16) ---
+
+  51 | 
+  52 | let try_with_any value =
+> 53 |   try value with
+> 54 |   | _ -> 0
+  55 | 
+  56 | let local_exception () =
+  57 |   let exception Local in
+
+
+Try-with are not handled
+
+Alternative: use sum types ("option", "result", ...) to represent an error case.
+
+--- tests/errors/unsupported_expressions.ml:57:3 --------------------------- side_effect (15/16) ---
+
+  55 | 
+  56 | let local_exception () =
+> 57 |   let exception Local in
+> 58 |   raise Local
+  59 | 
+  60 | type empty = |
+  61 | 
+
+
+Let of exception is not handled
+
+--- tests/errors/unsupported_expressions.ml:64:10 ------------------------ not_supported (16/16) ---
+
+  62 | let impossible (value : empty) =
+  63 |   match value with
+> 64 |   | _ -> .
+  65 | 
+  66 | type extension = ..
+  67 | type extension += Extension
+
+
+Unreachable expressions are not supported
+
+--- Errors -------------------------------------------------------------------------[ 16 errors ]---
+
+❌ File '/dev/stdout' generated with some errors
+(** File generated by rocq-of-ocaml *)
+Require Import RocqOfOCaml.RocqOfOCaml.
+Require Import RocqOfOCaml.Settings.
+
+Module mutable_record.
+  Record record : Set := Build {
+    field : int;
+  }.
+  Definition with_field field (r : record) :=
+    Build field.
+End mutable_record.
+Definition mutable_record := mutable_record.record.
+
+Definition set_field (record : mutable_record) : unit :=
+  (* ❌ Set record field not handled. *)
+  set_record_field record "field" 1.
+
+Definition array_value : array int :=
+  (* ❌ Arrays not handled. *)
+  [ 1; 2; 3 ].
+
+Definition while_loop (function_parameter : unit) : unit :=
+  let '_ := function_parameter in
+  let counter := Stdlib.ref_value 0 in
+  (* ❌ While loops not handled. *)
+  while.
+
+Definition for_loop (function_parameter : unit) : unit :=
+  let '_ := function_parameter in
+  (* ❌ For loops not handled. *)
+  for.
+
+(* ❌ Structure item `class` not handled. *)
+(* class *)
+
+Definition object_value : unhandled_object_type :=
+  (* ❌ Creation of objects is not handled *)
+  object.
+
+Definition send_value : int :=
+  (* ❌ Sending method message is not handled *)
+  send.
+
+Definition new_object : simple_object :=
+  (* ❌ Creation of new objects is not handled *)
+  new.
+
+Definition lazy_value : lazy_t :=
+  (* ❌ Lazy expressions are not handled *)
+  lazy 1.
+
+Definition assertion : unit :=
+  (* ❌ Assert instruction is not handled. *)
+  assert unit true.
+
+Definition try_with (value : int) : int :=
+  (* ❌ Use a trivial matching for the `with` clause, like: *)
+  typ_with_with_non_trivial_matching.
+
+Definition try_with_name (value : int) : int :=
+  (* ❌ Try-with are not handled *)
+  try_with (fun _ => value) (fun exn_value => 0).
+
+Definition try_with_any (value : int) : int :=
+  (* ❌ Try-with are not handled *)
+  try_with (fun _ => value) (fun _ => 0).
+
+Definition local_exception {A : Set} (function_parameter : unit) : A :=
+  let '_ := function_parameter in
+  (* ❌ Let of exception is not handled *)
+  let_exception.
+
+Inductive empty : Set :=.
+
+Definition impossible {A : Set} (value : empty) : A :=
+  let '_ := value in
+  (* ❌ Unreachable expressions are not supported *)
+  unreachable.
+
+Definition extension := extensible_type.
+
+Definition extension_value : extension := Build_extensible "Extension" unit tt.

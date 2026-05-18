@@ -36,7 +36,29 @@ jobs:
       - run: opam repo add rocq-released https://rocq-prover.org/opam/released
       - run: opam install rocq-prover=${{ matrix.rocq-version }}
       - run: opam pin add rocq-of-ocaml.dev . --no-action
+      - run: opam pin add bisect_ppx.dev git+https://github.com/aantron/bisect_ppx.git#4f0cb2a2e1b0b786b6b5f1c94985b201aa012f12 --no-action
       - run: opam depext conf-ruby --yes
       - run: opam install rocq-of-ocaml --deps-only --with-test
       - run: opam install rocq-of-ocaml --verbose
       - run: opam exec -- make test
+      - run: opam exec -- make coverage
+      - name: Add coverage summary
+        if: always()
+        run: |
+          if [ -f _coverage-summary.txt ]; then
+            {
+              echo "## Coverage"
+              echo
+              echo '```text'
+              cat _coverage-summary.txt
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: |
+            _coverage
+            _coverage-summary.txt
