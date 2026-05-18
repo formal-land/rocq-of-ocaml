@@ -6,7 +6,7 @@ Translate OCaml programs to **similar-looking code in Rocq**, an extremely expre
 | Do not hesitate to schedule a quick meeting with us for more information by going on [https://koalendar.com/e/meet-with-formal-land](https://koalendar.com/e/meet-with-formal-land).<br /> We offer formal verification services and advice and are always there for a quick chat. |
 | --- |
 
-**📚 Documentation on https://formal.land/docs/rocq-of-ocaml/introduction**
+**📚 Documentation on https://formal.land/docs/tools/rocq-of-ocaml/introduction**
 
 ## 🎯 Aim
 `rocq-of-ocaml` enables formal verification for [OCaml](https://ocaml.org/) programs&nbsp;🦄. *The more you prove, the happier you are.*
@@ -91,7 +91,7 @@ rocq-of-ocaml file.ml
 You can start to experiment with the test files in `tests/` or look at our [online examples](https://foobar-land.github.io/rocq-of-ocaml/examples/). `rocq-of-ocaml` compiles the `.ml` or `.mli` files using [Merlin](https://github.com/ocaml/merlin) to understand the dependencies of a project. One first needs to have a **compiled project** with a working configuration of Merlin. This is automatically the case if you use [dune](https://dune.build/) as a build system.
 
 ## Documentation
-You can read the documentation on the website of the project at [https://formal.land/docs/rocq-of-ocaml/introduction](https://formal.land/docs/rocq-of-ocaml/introduction).
+You can read the documentation on the website of the project at [https://formal.land/docs/tools/rocq-of-ocaml/introduction](https://formal.land/docs/tools/rocq-of-ocaml/introduction).
 
 ## Supported
 * the core of OCaml (functions, let bindings, pattern-matching,...) ✔️

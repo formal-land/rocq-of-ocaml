@@ -28,4 +28,9 @@ tests/extraction
 .merlin
 *.install
 *.coverage
+*.errors
+!tests/errors/*.errors
+*.ml.errors
+*.mli.errors
 _coverage/
+_coverage-summary.txt
