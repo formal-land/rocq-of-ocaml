@@ -1,12 +1,12 @@
 type _ exp =
   | E_Int : int -> int exp
-[@@coq_tag_gadt]
+[@@rocq_tag_gadt]
 
 type 'a term =
   | T_constr : {
       b : 'a exp
     } -> 'a term
-[@@coq_tag_gadt]
+[@@rocq_tag_gadt]
 
 type wrapper =
   (* | W_int : int -> wrapper *)
@@ -28,6 +28,6 @@ let rec match_with_used_unused_existentials :
   match fuel with
   | [] -> 0
   | _ :: l ->
-    match[@coq_match_gadt] t with
+    match[@rocq_match_gadt] t with
     | Ty_bool -> 12
     | Ty_pair (t1, t2) -> match_with_used_unused_existentials l t1 (fun x -> x)

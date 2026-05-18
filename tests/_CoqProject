@@ -1,2 +1,2 @@
--R ../proofs CoqOfOCaml 
+-R ../proofs RocqOfOCaml 
 -arg -impredicative-set

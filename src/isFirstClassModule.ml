@@ -148,7 +148,7 @@ let rec is_module_typ_first_class_aux (module_typ : Types.module_type)
                  ^ "\n"
                  ^ "(a shape is a list of names of values and sub-modules)\n\n"
                  ^ "We use the concept of shape to find the name of a \
-                    signature for Coq."))
+                    signature for Rocq."))
         | [ signature_path ] -> return (Found signature_path)
         | signature_path :: _ :: _ ->
             raise (Found signature_path) Module
@@ -164,7 +164,7 @@ let rec is_module_typ_first_class_aux (module_typ : Types.module_type)
               ^ "\n"
               ^ "(a shape is a list of names of values and sub-modules)\n\n"
               ^ "We use the concept of shape to find the name of a signature \
-                 for Coq."))
+                 for Rocq."))
     | Mty_functor _ -> return (Not_found "This is a functor type")
     | Mty_for_hole -> return (Not_found "Module type hole")
 

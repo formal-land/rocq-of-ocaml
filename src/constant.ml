@@ -35,40 +35,40 @@ let of_constant (c : constant) : t Monad.t =
       let message = "Constant of type nativeint is converted to int" in
       warn (Int (Nativeint.to_int n)) message
 
-(** Parsed string (for Coq) is
-    - either a usual ocaml string with Coq printable characters
-    - or a Coq non-printable character
-    - or double quotes (a special case for Coq)
-    https://coq.inria.fr/library/Coq.Strings.String.html
+(** Parsed string (for Rocq) is
+    - either a usual ocaml string with Rocq printable characters
+    - or a Rocq non-printable character
+    - or double quotes (a special case for Rocq)
+    https://rocq-prover.org/doc/v9.0/stdlib/Stdlib.Strings.String.html
  *)
 type parsed_string = PString of string | PChar of char | PDQuote
 
-(** Kind of "good" printable characters (according to the coq documentation).
+(** Kind of "good" printable characters (according to the Rocq documentation).
     We do not assume the string to be in utf-8. *)
 let is_printable_ascii c =
   let code = Char.code c in
   32 <= code && code < 128 && code <> Char.code '\n' && c <> '"'
 
-(** Double qoutes char, special case for coq. *)
+(** Double qoutes char, special case for Rocq. *)
 let dquote = Angstrom.map ~f:(fun _ -> PDQuote) (Angstrom.char '"')
 
-(** Parser for Coq printable chars. *)
+(** Parser for Rocq printable chars. *)
 let printable =
   Angstrom.map
     ~f:(fun str -> PString str)
     (Angstrom.take_while1 is_printable_ascii)
 
-(** Parser for Coq non-printable chars. *)
+(** Parser for Rocq non-printable chars. *)
 let nonprintable = Angstrom.map ~f:(fun c -> PChar c) Angstrom.any_char
 
-(** Parser for Coq string. *)
+(** Parser for Rocq string. *)
 let parse_string_for_coq = many (dquote <|> printable <|> nonprintable)
 
 (** Just a wrapper. *)
 let npchar c : SmartPrint.t =
   !^"String.String" ^^ !^(Printf.sprintf "\"%03d\"" (Char.code c))
 
-(** Pretty-print [parsed_string] to Coq. *)
+(** Pretty-print [parsed_string] to Rocq. *)
 let rec to_coq_s (need_parens : bool) (xs : parsed_string list) : SmartPrint.t =
   match xs with
   | [] -> double_quotes !^""
@@ -85,7 +85,7 @@ let rec to_coq_s (need_parens : bool) (xs : parsed_string list) : SmartPrint.t =
       Pp.parens need_parens
         (double_quotes !^s ^^ !^"++" ^^ nest @@ to_coq_s false xs)
 
-(** Pretty-print a constant to Coq. *)
+(** Pretty-print a constant to Rocq. *)
 let rec to_coq (need_parens : bool) (c : t) : SmartPrint.t =
   match c with
   | Int n -> if n >= 0 then OCaml.int n else parens @@ OCaml.int n

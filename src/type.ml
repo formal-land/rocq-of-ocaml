@@ -144,7 +144,7 @@ module VariableKindAnalysis = struct
         else if is_tagged then return (typs |> List.map (fun typ -> (typ, Set)))
           (* This is both an optimization and a way to avoid infinite loops on some
              recursive types, such as recursive records (although we do not support
-             recursive records on the Coq side). *)
+             recursive records on the Rocq side). *)
         else if List.length typ_params = 0 then return []
         else
           match typ_declaration.type_kind with
@@ -480,7 +480,7 @@ let is_type_undeclared (path : Path.t) : bool Monad.t =
 
 (** We do not generate error messages for this function. Indeed, if there are
     errors for the following types, they should be noticed elsewhere (by the
-    conversion function to Coq for example). *)
+    conversion function to Rocq for example). *)
 let rec existential_typs_of_typ (typ : Types.type_expr) : Name.Set.t Monad.t =
   match Types.get_desc typ with
   | Tvar _ | Tunivar _ -> return Name.Set.empty

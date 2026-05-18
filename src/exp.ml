@@ -42,7 +42,7 @@ type dependent_pattern_match = {
 }
 
 (** The simplified OCaml AST we use. We do not use a mutualy recursive type to
-    simplify the importation in Coq. *)
+    simplify the importation in Rocq. *)
 type t =
   | Constant of Constant.t
   | Variable of MixedPath.t * (string * string) list
@@ -1590,7 +1590,7 @@ and of_module_expr (typ_vars : Name.t Name.Map.t)
             raise e Module
               ("We do not support unpacking of first-class module outside of "
              ^ "expressions.\n\n"
-             ^ "This is to prevent universe inconsistencies in Coq. A module \
+             ^ "This is to prevent universe inconsistencies in Rocq. A module \
                 can " ^ "become first-class but not the other way around.")
         | Tmod_typed_hole ->
             raise (Error "module_hole") Unexpected "Unexpected module hole."))
@@ -1791,7 +1791,7 @@ let to_coq_implicit (implicit : string * string) : SmartPrint.t =
   let name, value = implicit in
   nest (parens (!^name ^^ !^":=" ^^ !^value))
 
-(** Pretty-print an expression to Coq (inside parenthesis if the [paren] flag is
+(** Pretty-print an expression to Rocq (inside parenthesis if the [paren] flag is
     set). *)
 let rec to_coq (paren : bool) (e : t) : SmartPrint.t =
   match e with

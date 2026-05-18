@@ -17,18 +17,18 @@ class Test
     File.join(File.dirname(@source_file), base_name + '.v')
   end
 
-  def coq_of_ocaml_cmd
-    local_executable = '_build/default/src/coqOfOCaml.exe'
-    coq_of_ocaml =
+  def rocq_of_ocaml_cmd
+    local_executable = '_build/default/src/rocqOfOCaml.exe'
+    rocq_of_ocaml =
       ARGV[0] == '--with-coverage' ?
-        ['dune', 'exec', '--instrument-with', 'bisect_ppx', 'src/coqOfOCaml.exe', '--'] :
-        [File.executable?(local_executable) ? local_executable : 'coq-of-ocaml']
-    cmd = [*coq_of_ocaml, '-output', '/dev/stdout', @source_file]
+        ['dune', 'exec', '--instrument-with', 'bisect_ppx', 'src/rocqOfOCaml.exe', '--'] :
+        [File.executable?(local_executable) ? local_executable : 'rocq-of-ocaml']
+    cmd = [*rocq_of_ocaml, '-output', '/dev/stdout', @source_file]
   end
 
-  def coq_of_ocaml
+  def rocq_of_ocaml
     # We remove the fist line which is a success message
-    output = IO.popen(coq_of_ocaml_cmd, :external_encoding => "utf-8").read.split("\n")[1..-1].join("\n") + "\n"
+    output = IO.popen(rocq_of_ocaml_cmd, :external_encoding => "utf-8").read.split("\n")[1..-1].join("\n") + "\n"
     output
   end
 
@@ -40,7 +40,7 @@ class Test
 
   # Update the reference snapshot file.
   def update
-    output = coq_of_ocaml
+    output = rocq_of_ocaml
     file_name = generated_name
     File.write(file_name, output)
   end
@@ -48,21 +48,21 @@ class Test
   def check
     # Uncomment the following line to update the test snapshots.
     # update
-    coq_of_ocaml == reference
+    rocq_of_ocaml == reference
   end
 
-  def coq_cmd
-    "rocq c -R tests Tests -R proofs CoqOfOCaml -impredicative-set #{generated_name}"
+  def rocq_cmd
+    "rocq c -R tests Tests -R proofs RocqOfOCaml -impredicative-set #{generated_name}"
   end
 
-  def coq
-    system("#{coq_cmd} 2>/dev/null")
+  def rocq
+    system("#{rocq_cmd} 2>/dev/null")
     return $?.exitstatus == 0
   end
 
   def extraction_cmd
     disable_fatal_warnings = "-lflags '-warn-error -a'"
-    "cd tests/extraction && rocq c -R .. Tests -R ../../proofs CoqOfOCaml -impredicative-set extract.v && ocamlbuild #{disable_fatal_warnings} #{base_name}.byte && ./#{base_name}.byte"
+    "cd tests/extraction && rocq c -R .. Tests -R ../../proofs RocqOfOCaml -impredicative-set extract.v && ocamlbuild #{disable_fatal_warnings} #{base_name}.byte && ./#{base_name}.byte"
   end
 
   def extraction
@@ -101,15 +101,15 @@ class Tests
     puts "\e[1mChecking '.v':\e[0m"
     for test in @tests do
       print_result(test.check)
-      puts test.coq_of_ocaml_cmd.join(" ")
+      puts test.rocq_of_ocaml_cmd.join(" ")
     end
   end
 
-  def coq
+  def rocq
     puts "\e[1mRunning Rocq (compiles the reference files):\e[0m"
     for test in @tests do
-      print_result(test.coq)
-      puts test.coq_cmd
+      print_result(test.rocq)
+      puts test.rocq_cmd
     end
   end
 
@@ -139,7 +139,7 @@ end
 tests = Tests.new(test_files)
 tests.check
 puts
-tests.coq
+tests.rocq
 # We do not test the extraction for now as it fails due to axioms. We will see
 # how to deal with it latter.
 # tests.extraction

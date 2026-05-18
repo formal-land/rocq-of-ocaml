@@ -156,7 +156,7 @@ let tuple_tag = of_string_raw "tuple_tag"
 let constr_tag = of_string_raw "constr_tag"
 let decode_vtag = of_string_raw "decode_vtag"
 
-(** Pretty-print a name to Coq. *)
+(** Pretty-print a name to Rocq. *)
 let to_coq (name : t) : SmartPrint.t = !^(to_string name)
 
 let to_coq_list_or_empty (names : t list) (map : SmartPrint.t -> SmartPrint.t) :

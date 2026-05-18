@@ -7,7 +7,7 @@ open SmartPrint
 (** With the precise mode, we compute a type shape for the values of the
     signature. This type shape helps to distinguish between two signatures with
     the same elements but different types. We can activate this mode with the
-    attribute `[@@coq_precise_signature]` on a signature definition. *)
+    attribute `[@@rocq_precise_signature]` on a signature definition. *)
 module TypeShape = struct
   type t = { nb_function_parameters : int; nb_type_applications_result : int }
 

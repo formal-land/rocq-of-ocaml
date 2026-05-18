@@ -33,7 +33,7 @@ module Value = struct
       ^^ separate space (List.map Name.to_coq (List.map fst typ_vars))
       ^^ !^"in" ^^ newline)
 
-  (** Pretty-print a value definition to Coq. *)
+  (** Pretty-print a value definition to Rocq. *)
   let to_coq (fargs : FArgs.t) (value : t) : SmartPrint.t =
     let { use_unsafe_fixpoints; definition } = value in
     match definition.Exp.Definition.cases with
@@ -226,7 +226,7 @@ let top_level_evaluation (e : expression) : t list Monad.t =
          is_notation = false;
        }
      in
-     let documentation = "Init function; without side-effects in Coq" in
+     let documentation = "Init function; without side-effects in Rocq" in
      return
        [
          Documentation
@@ -608,7 +608,7 @@ and of_module_expr (name : Name.t) (functor_parameters : functor_parameters)
       (Error
          "Holes not supported")
 
-(** Pretty-print a structure to Coq. *)
+(** Pretty-print a structure to Rocq. *)
 let rec to_coq (fargs : FArgs.t) (defs : t list) : SmartPrint.t =
   let rec to_coq_one (def : t) : SmartPrint.t =
     match def with

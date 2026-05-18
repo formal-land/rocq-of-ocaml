@@ -3,7 +3,7 @@ id: run
 title: Run
 ---
 
-`coq-of-ocaml` translates the OCaml files one by one. It uses [Merlin](https://github.com/ocaml/merlin) to get the typing environment of each file. Thus you should first have a project which works with Merlin. This is generally the case for a project compiled with [dune](https://github.com/ocaml/dune).
+`rocq-of-ocaml` translates the OCaml files one by one. It uses [Merlin](https://github.com/ocaml/merlin) to get the typing environment of each file. Thus you should first have a project which works with Merlin. This is generally the case for a project compiled with [dune](https://github.com/ocaml/dune).
 
 ## Minimal example
 Create a file `example.ml`:
@@ -20,13 +20,13 @@ let rec sum tree =
 
 Run:
 ```sh
-coq-of-ocaml example.ml
+rocq-of-ocaml example.ml
 ```
 
-You should get a file `Example.v` representing the corresponding version in Coq:
-```coq
-Require Import CoqOfOCaml.CoqOfOCaml.
-Require Import CoqOfOCaml.Settings.
+You should get a file `Example.v` representing the corresponding version in Rocq:
+```rocq
+Require Import RocqOfOCaml.RocqOfOCaml.
+Require Import RocqOfOCaml.Settings.
 
 Inductive tree (a : Set) : Set :=
 | Leaf : a -> tree a
@@ -46,10 +46,10 @@ Fixpoint sum (tree : tree Z) : Z :=
 ## Command line arguments
 The general usage pattern is the following:
 ```sh
-coq-of-ocaml [options] file.ml
+rocq-of-ocaml [options] file.ml
 ```
 
 The options are:
-* `-output file`: specify the name of the Coq `.v` file to output (by default the capitalized OCaml file name with a `.v` extension)
+* `-output file`: specify the name of the Rocq `.v` file to output (by default the capitalized OCaml file name with a `.v` extension)
 * `-json-mode`: produce the list of error messages in JSON format; useful for post-processing
 

@@ -179,7 +179,7 @@ Module Z.
     compare_is_sound := Z.compare_spec |}.
 End Z.
 
-(** OCaml functions are converted to their Coq's counter parts when it is
+(** OCaml functions are converted to their Rocq's counter parts when it is
     possible. *)
 Module Stdlib.
   (** * Comparisons *)
