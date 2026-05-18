@@ -27,7 +27,12 @@ let of_payload_string (error_message : string) (id : string)
         {
           pstr_desc =
             Pstr_eval
-              ( { pexp_desc = Pexp_constant (Pconst_string (payload, _, _)); _ },
+              ( {
+                  pexp_desc =
+                    Pexp_constant
+                      { pconst_desc = Pconst_string (payload, _, _); _ };
+                  _;
+                },
                 _ );
           _;
         };
@@ -52,14 +57,20 @@ let of_payload_string_string (error_message : string) (id : string)
                     Pexp_apply
                       ( {
                           pexp_desc =
-                            Pexp_constant (Pconst_string (payload1, _, _));
+                            Pexp_constant
+                              { pconst_desc = Pconst_string (payload1, _, _); _ };
                           _;
                         },
                         [
                           ( _,
                             {
                               pexp_desc =
-                                Pexp_constant (Pconst_string (payload2, _, _));
+                                Pexp_constant
+                                  {
+                                    pconst_desc =
+                                      Pconst_string (payload2, _, _);
+                                    _;
+                                  };
                               _;
                             } );
                         ] );
@@ -84,7 +95,12 @@ let of_payload_strings (error_message : string) (_id : string)
         {
           pstr_desc =
             Pstr_eval
-              ( { pexp_desc = Pexp_constant (Pconst_string (payload, _, _)); _ },
+              ( {
+                  pexp_desc =
+                    Pexp_constant
+                      { pconst_desc = Pconst_string (payload, _, _); _ };
+                  _;
+                },
                 _ );
           _;
         };
@@ -99,7 +115,9 @@ let of_payload_strings (error_message : string) (_id : string)
                   pexp_desc =
                     Pexp_apply
                       ( {
-                          pexp_desc = Pexp_constant (Pconst_string (head, _, _));
+                          pexp_desc =
+                            Pexp_constant
+                              { pconst_desc = Pconst_string (head, _, _); _ };
                           _;
                         },
                         arguments );
@@ -116,7 +134,8 @@ let of_payload_strings (error_message : string) (_id : string)
                | ( _,
                    {
                      Parsetree.pexp_desc =
-                       Pexp_constant (Pconst_string (payload, _, _));
+                       Pexp_constant
+                         { pconst_desc = Pconst_string (payload, _, _); _ };
                      _;
                    } ) ->
                    return (Some payload)

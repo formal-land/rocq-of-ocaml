@@ -8,6 +8,8 @@ let path_to_string_list p =
   let rec aux acc = function
     | Pident id -> Ident.name id :: acc
     | Pdot (p, str) -> aux (str :: acc) p
+    | Pextra_ty (p, Pext_ty) -> aux acc p
+    | Pextra_ty (p, Pcstr_ty str) -> aux (str :: acc) p
     | _ -> assert false
   in
   aux [] p
@@ -63,7 +65,10 @@ module RawDecomposedPath = struct
     | Pdot (path', field) ->
         let* start_path, fields = get_rev path' in
         return (start_path, (signed_path, field) :: fields)
-    | Pextra_ty _ -> failwith "Unexpected path of introduced construct"
+    | Pextra_ty (path', Pext_ty) -> get_rev path'
+    | Pextra_ty (path', Pcstr_ty field) ->
+        let* start_path, fields = get_rev path' in
+        return (start_path, (signed_path, field) :: fields)
 end
 
 module DecomposedPath = struct
@@ -157,11 +162,12 @@ let is_module_path_local (path : Path.t) : bool Monad.t =
 (** In case the base path is local, we need to make a special transformation.
     Indeed, unless if the path is a single name, this means that we access to a
     sub-module with an anonmous signature which has been flattened. *)
-let get_local_base_path (is_value : bool) (path : Path.t) :
+let rec get_local_base_path (is_value : bool) (path : Path.t) :
     PathName.t option Monad.t =
   match path with
   | Papply _ -> failwith "Unexpected functor path application"
-  | Pextra_ty _ -> failwith "Unexpected path of introduced construct"
+  | Pextra_ty (path, Pext_ty) -> get_local_base_path is_value path
+  | Pextra_ty _ -> return None
   | Pident _ -> return None
   | Pdot (path', _) ->
       let* is_local = is_module_path_local path' in

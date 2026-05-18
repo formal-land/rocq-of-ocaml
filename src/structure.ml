@@ -603,7 +603,7 @@ and of_module_expr (name : Name.t) (functor_parameters : functor_parameters)
         (Error
            "Cannot unpack first-class modules at top-level due to a universe \
             inconsistency")
-  | Tmod_hole ->
+  | Tmod_typed_hole ->
     return
       (Error
          "Holes not supported")

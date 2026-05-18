@@ -123,7 +123,11 @@ let of_path_without_convert (is_value : bool) (path : Path.t) : t Monad.t =
         let name = Path.name path in
         raise ([], Name.Make name) Unexpected
           ("Unexpected functor path application " ^ Path.name path)
-    | Path.Pextra_ty _ -> failwith "Unexpected path of introduced construct"
+    | Path.Pextra_ty (path, Path.Pext_ty) -> aux path
+    | Path.Pextra_ty (path, Path.Pcstr_ty field) ->
+        aux path >>= fun (path, base) ->
+        Name.of_string is_value field >>= fun field ->
+        return (base :: path, field)
   in
   aux path >>= fun (path, base) -> return (of_name (List.rev path) base)
 
@@ -143,7 +147,10 @@ let of_path_and_name_with_convert (path : Path.t) (name : Name.t) : t Monad.t =
         let name = Path.name path in
         raise ([], Name.Make name) Unexpected
           ("Unexpected functor path application " ^ Path.name path)
-    | Path.Pextra_ty _ -> failwith "Unexpected path of introduced construct"
+    | Path.Pextra_ty (path, Path.Pext_ty) -> aux path
+    | Path.Pextra_ty (path, Path.Pcstr_ty s) ->
+        aux path >>= fun (path, base) ->
+        Name.of_string false s >>= fun s -> return (path @ [ base; s ], name)
   in
   aux path >>= fun (path, base) -> convert (of_name path base)
 
@@ -177,7 +184,7 @@ let rec iterate_in_aliases (path : Path.t) (nb_args : int) : Path.t Monad.t =
   | _ -> return path
 
 let of_constructor_description
-    (constructor_description : Types.constructor_description) : t Monad.t =
+    (constructor_description : Data_types.constructor_description) : t Monad.t =
   match Types.get_desc constructor_description.cstr_res with
   | Tconstr (path, args, _) ->
       let* path = iterate_in_aliases path (List.length args) in
@@ -195,7 +202,7 @@ let of_constructor_description
       raise path Unexpected
         "Unexpected constructor description without a type constructor"
 
-let of_label_description (label_description : Types.label_description) :
+let of_label_description (label_description : Data_types.label_description) :
     t Monad.t =
   match Types.get_desc label_description.lbl_res with
   | Tconstr (path, args, _) ->

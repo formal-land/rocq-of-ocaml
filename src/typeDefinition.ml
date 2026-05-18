@@ -377,7 +377,7 @@ let of_ocaml_abstract_typs (typs : type_declaration list) :
       | {
        typ_id;
        typ_type =
-         { type_kind = Type_abstract; type_manifest = None; type_params; _ };
+         { type_kind = Type_abstract _; type_manifest = None; type_params; _ };
        typ_attributes;
        _;
       } ->
@@ -490,7 +490,7 @@ let of_ocaml_non_abstract_typs (typs : type_declaration list) : t Monad.t =
                             typs ))
                 | {
                  typ_type =
-                   { type_kind = Type_abstract; type_manifest = None; _ };
+                   { type_kind = Type_abstract _; type_manifest = None; _ };
                  _;
                 } ->
                     return (constructor_records, notations, records, typs)

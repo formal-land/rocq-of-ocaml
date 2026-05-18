@@ -12,9 +12,22 @@ type t =
   | Constructor of PathName.t * t list
       (** A constructor name and a list of pattern in arguments. *)
   | Alias of t * Name.t
+  | ModuleUnpack of Name.t
   | Record of (PathName.t * t) list
       (** A list of fields from a record with their expected patterns. *)
   | Or of t * t
+
+let rec has_unpack_marker : type pattern_kind. pattern_kind general_pattern -> bool
+    =
+ fun p ->
+  List.exists
+    (fun (extra, _, _) -> match extra with Tpat_unpack -> true | _ -> false)
+    p.pat_extra
+  ||
+  match p.pat_desc with
+  | Tpat_alias (p, _, _, _, _) -> has_unpack_marker p
+  | Tpat_value p -> has_unpack_marker (p :> value general_pattern)
+  | _ -> false
 
 (** Import an OCaml pattern. If the answer is [None] then the pattern is
     impossible (for example with extensible types). *)
@@ -24,9 +37,12 @@ let rec of_pattern :
   set_loc p.pat_loc
     (match p.pat_desc with
     | Tpat_any -> return (Some Any)
-    | Tpat_var (x, _) ->
+    | Tpat_var (x, _, _) when has_unpack_marker p ->
+        Name.of_ident true x >>= fun x -> return (Some (ModuleUnpack x))
+    | Tpat_var (x, _, _) ->
         Name.of_ident true x >>= fun x -> return (Some (Variable x))
     | Tpat_tuple ps ->
+        let ps = List.map snd ps in
         Monad.List.map of_pattern ps >>= fun patterns ->
         return
           (let patterns = Util.Option.all patterns in
@@ -45,7 +61,12 @@ let rec of_pattern :
               (let patterns = Util.Option.all patterns in
                patterns
                |> Option.map (fun patterns -> Constructor (x, patterns))))
-    | Tpat_alias (p, x, _) ->
+    | Tpat_alias ({ pat_desc = Tpat_any; _ }, x, _, _, _)
+      when has_unpack_marker p ->
+        Name.of_ident true x >>= fun x -> return (Some (ModuleUnpack x))
+    | Tpat_alias ({ pat_desc = Tpat_any; _ }, x, _, _, _) ->
+        Name.of_ident true x >>= fun x -> return (Some (Variable x))
+    | Tpat_alias (p, x, _, _, _) ->
         of_pattern p >>= fun pattern ->
         Name.of_ident true x >>= fun x ->
         return (pattern |> Option.map (fun pattern -> Alias (pattern, x)))
@@ -72,7 +93,7 @@ let rec of_pattern :
         >>= fun fields ->
         return
           (Util.Option.all fields |> Option.map (fun fields -> Record fields))
-    | Tpat_array ps ->
+    | Tpat_array (_, ps) ->
         Monad.List.map of_pattern ps >>= fun patterns ->
         raise
           (Util.Option.all patterns
@@ -148,6 +169,7 @@ let rec get_free_vars (p : t) : Name.Set.t =
   | Tuple es -> get_free_vars_of_list es
   | Constructor (_, es) -> get_free_vars_of_list es
   | Alias (e, _) -> get_free_vars e
+  | ModuleUnpack x -> Name.Set.singleton x
   | Record entries -> get_free_vars_of_list (List.map snd entries)
   | Or (e1, e2) -> get_free_vars_of_list [ e1; e2 ]
 
@@ -159,6 +181,7 @@ let rec has_or_patterns (p : t) : bool =
   | Tuple ps -> List.exists has_or_patterns ps
   | Constructor (_, ps) -> List.exists has_or_patterns ps
   | Alias (p, _) -> has_or_patterns p
+  | ModuleUnpack _ -> false
   | Record fields -> fields |> List.map snd |> List.exists has_or_patterns
   | Or _ -> true
 
@@ -187,6 +210,7 @@ let rec to_coq (paren : bool) (p : t) : SmartPrint.t =
       match p with
       | Any -> to_coq paren (Variable x)
       | _ -> Pp.parens paren @@ nest (to_coq true p ^^ !^"as" ^^ Name.to_coq x))
+  | ModuleUnpack x -> !^"existS" ^^ !^"_" ^^ !^"_" ^^ Name.to_coq x
   | Record fields ->
       !^"{|" ^^ nest_all
       @@ separate (!^";" ^^ space)

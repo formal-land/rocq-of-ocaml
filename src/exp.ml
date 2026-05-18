@@ -479,41 +479,7 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
           | Texp_let (is_rec, cases, e2) ->
               of_expression typ_vars e2 >>= fun e2 ->
               of_let typ_vars is_rec cases e2
-          | Texp_function
-              {
-                cases =
-                  [
-                    {
-                      c_lhs = { pat_desc = Tpat_var (x, _); pat_type; _ };
-                      c_rhs = e;
-                      _;
-                    };
-                  ];
-                _;
-              }
-          | Texp_function
-              {
-                cases =
-                  [
-                    {
-                      c_lhs =
-                        {
-                          pat_desc =
-                            Tpat_alias ({ pat_desc = Tpat_any; _ }, x, _);
-                          pat_type;
-                          _;
-                        };
-                      c_rhs = e;
-                      _;
-                    };
-                  ];
-                _;
-              } ->
-              let* x = Name.of_ident true x in
-              let* typ, _, _ = Type.of_typ_expr true typ_vars pat_type in
-              of_expression typ_vars e >>= fun e ->
-              return (Function (x, Some typ, e))
-          | Texp_function { cases; _ } ->
+          | Texp_function (params, body) ->
               let is_gadt_match =
                 Attribute.has_match_gadt attributes
                 || Attribute.has_match_gadt_with_result attributes
@@ -528,20 +494,120 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
               let is_grab_existentials =
                 Attribute.has_grab_existentials attributes
               in
-              let* x, typ, e =
-                open_cases typ_vars cases is_gadt_match is_tagged_match
-                  do_cast_results is_with_default_case is_grab_existentials
+              let of_param body { fp_kind; _ } =
+                let of_pat pat =
+                  let is_module_unpack = Pattern.has_unpack_marker pat in
+                  match (is_module_unpack, pat.pat_desc) with
+                  | ( true,
+                      ( Tpat_var (x, _, _)
+                      | Tpat_alias ({ pat_desc = Tpat_any; _ }, x, _, _, _) )
+                    ) ->
+                      let* x = Name.of_ident true x in
+                      let* typ, _, _ =
+                        Type.of_typ_expr true typ_vars pat.pat_type
+                      in
+                      let parameter_expr = Variable (MixedPath.of_name x, []) in
+                      return
+                        (Function
+                           ( x,
+                             Some typ,
+                             Match
+                               ( parameter_expr,
+                                 None,
+                                 [ (Pattern.ModuleUnpack x, None, body) ],
+                                 false ) ))
+                  | ( _,
+                      ( Tpat_var (x, _, _)
+                      | Tpat_alias ({ pat_desc = Tpat_any; _ }, x, _, _, _) )
+                    ) ->
+                      let* x = Name.of_ident true x in
+                      let* typ, _, _ =
+                        Type.of_typ_expr true typ_vars pat.pat_type
+                      in
+                      return (Function (x, Some typ, body))
+                  | _ ->
+                      let* typ, _, _ =
+                        Type.of_typ_expr true typ_vars pat.pat_type
+                      in
+                      let parameter = Name.FunctionParameter in
+                      let parameter_expr =
+                        Variable (MixedPath.of_name parameter, [])
+                      in
+                      let* pattern = Pattern.of_pattern pat in
+                      let cases =
+                        match pattern with
+                        | None -> []
+                        | Some pattern -> [ (pattern, None, body) ]
+                      in
+                      return
+                        (Function
+                           ( parameter,
+                             Some typ,
+                             Match (parameter_expr, None, cases, false) ))
+                in
+                match fp_kind with
+                | Tparam_pat pat -> of_pat pat
+                | Tparam_optional_default _ ->
+                    raise body NotSupported
+                      "Optional argument defaults are not supported"
               in
-              return (Function (x, typ, e))
+              let* body =
+                match body with
+                | Tfunction_body e -> of_expression typ_vars e
+                | Tfunction_cases
+                    {
+                      cases =
+                        [
+                          {
+                            c_lhs =
+                              {
+                                  pat_desc =
+                                    ( Tpat_var (x, _, _)
+                                    | Tpat_alias
+                                        ( { pat_desc = Tpat_any; _ },
+                                          x,
+                                          _,
+                                          _,
+                                          _ ) );
+                                  pat_type;
+                                  pat_extra;
+                                  _;
+                                };
+                            c_guard = None;
+                            c_rhs = e;
+                            _;
+                          };
+                        ];
+                      _;
+                    }
+                  when not
+                         (List.exists
+                            (fun (extra, _, _) ->
+                              match extra with Tpat_unpack -> true | _ -> false)
+                            pat_extra) ->
+                    let* x = Name.of_ident true x in
+                    let* typ, _, _ = Type.of_typ_expr true typ_vars pat_type in
+                    of_expression typ_vars e >>= fun e ->
+                    return (Function (x, Some typ, e))
+                | Tfunction_cases { cases; _ } ->
+                    let* x, typ, e =
+                      open_cases typ_vars cases is_gadt_match is_tagged_match
+                        do_cast_results is_with_default_case is_grab_existentials
+                    in
+                    return (Function (x, typ, e))
+              in
+              List.fold_right
+                (fun param body -> body >>= fun body -> of_param body param)
+                params (return body)
           | Texp_apply (e_f, e_xs) -> (
               of_expression typ_vars e_f >>= fun e_f ->
               e_xs
               |> Monad.List.map (fun (_, e_x) ->
                      match e_x with
-                     | Some e_x ->
+                     | Arg e_x ->
                          of_expression typ_vars e_x >>= fun e_x ->
                          return (Some e_x)
-                     | None -> return None)
+                     | Omitted () -> return None)
               >>= fun e_xs ->
               (* We consider the OCaml's [@@] and [|>] operators as syntactic sugar. *)
               let e_f, e_xs =
@@ -647,7 +713,7 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
               match List.find_map (fun x -> x) applies with
               | Some apply -> return apply
               | None -> return (Apply (e_f, e_xs)))
-          | Texp_match (e, cases, _) ->
+          | Texp_match (e, cases, [], _) ->
               let is_gadt_match =
                 Attribute.has_match_gadt attributes
                 || Attribute.has_match_gadt_with_result attributes
@@ -665,7 +731,11 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
               let* e = of_expression typ_vars e in
               of_match typ_vars e cases is_gadt_match is_tagged_match
                 do_cast_results is_with_default_case is_grab_existential
+          | Texp_match (_, _, _ :: _, _) ->
+              raise (Error "effect_matching") SideEffect
+                "Effect handlers are not supported"
           | Texp_tuple es ->
+              let es = List.map snd es in
               Monad.List.map (of_expression typ_vars) es >>= fun es ->
               return (Tuple es)
           | Texp_construct (_, constructor_description, es) -> (
@@ -745,6 +815,9 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
                                  [] ),
                              [ Some e; Some extended_e ] ))
                        extended_e fields))
+          | Texp_atomic_loc _ ->
+              raise (Error "atomic_loc") NotSupported
+                "Atomic locations are not supported"
           | Texp_field (e, _, label_description) ->
               PathName.of_label_description label_description >>= fun x ->
               of_expression typ_vars e >>= fun e -> return (Field (e, x))
@@ -759,7 +832,7 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
               let* e1 = of_expression typ_vars e1 in
               let* e2 = of_expression typ_vars e2 in
               return (Match (e1, None, [ (Pattern.Any, None, e2) ], false))
-          | Texp_try (e, cases) -> (
+          | Texp_try (e, cases, []) -> (
               let* e = of_expression typ_vars e in
               let default_error =
                 error_message (Error "typ_with_with_non_trivial_matching")
@@ -773,7 +846,7 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
               | [ { c_lhs; c_rhs; _ } ] -> (
                   let* name =
                     match c_lhs.pat_desc with
-                    | Tpat_var (ident, _) ->
+                    | Tpat_var (ident, _, _) ->
                         let* name = Name.of_ident true ident in
                         return (Some name)
                     | Tpat_any -> return (Some Name.Nameless)
@@ -798,6 +871,9 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
                           ...) to represent an error case.")
                   | None -> default_error)
               | _ -> default_error)
+          | Texp_try (_, _, _ :: _) ->
+              raise (Error "effect_try") SideEffect
+                "Effect handlers are not supported"
           | Texp_setfield (e_record, _, { lbl_name; _ }, e) ->
               of_expression typ_vars e_record >>= fun e_record ->
               of_expression typ_vars e >>= fun e ->
@@ -810,7 +886,7 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
                        Some e;
                      ] ))
                 SideEffect "Set record field not handled."
-          | Texp_array es ->
+          | Texp_array (_, es) ->
               Monad.List.map (of_expression typ_vars) es >>= fun es ->
               error_message (ErrorArray es) NotSupported "Arrays not handled."
           | Texp_while _ ->
@@ -962,7 +1038,7 @@ let rec of_expression (typ_vars : Name.t Name.Map.t) (e : expression) :
               error_message (Error "extension") NotSupported
                 "Construction of extensions is not handled"
           | Texp_open (_, e) -> of_expression typ_vars e
-          | Texp_hole ->
+          | Texp_typed_hole ->
               error_message (Error "expression_hole") Unexpected
                 "Unexpected expression hole"
         in
@@ -1015,7 +1091,7 @@ and of_match :
             else return (Some { cast; args; motive })
     in
     cases
-    |> Monad.List.filter_map (fun { c_lhs; c_guard; c_rhs } ->
+    |> Monad.List.filter_map (fun { c_lhs; c_guard; c_rhs; _ } ->
            set_loc c_lhs.pat_loc
              (let* bound_vars =
                 Typedtree.pat_bound_idents c_lhs
@@ -1347,6 +1423,15 @@ and of_let (typ_vars : Name.t Name.Map.t) (is_rec : Asttypes.rec_flag)
           in
           match p with
           | Some (Pattern.Variable x) -> return (LetVar (None, x, [], e1, e2))
+          | Some (Pattern.ModuleUnpack x) ->
+              let unpack =
+                Match
+                  ( Variable (MixedPath.of_name x, []),
+                    dep_match,
+                    [ (Pattern.ModuleUnpack x, None, e2) ],
+                    false )
+              in
+              return (LetVar (None, x, [], e1, unpack))
           | Some p ->
               let is_with_default_case =
                 Attribute.has_match_with_default attributes
@@ -1507,7 +1592,7 @@ and of_module_expr (typ_vars : Name.t Name.Map.t)
              ^ "expressions.\n\n"
              ^ "This is to prevent universe inconsistencies in Coq. A module \
                 can " ^ "become first-class but not the other way around.")
-        | Tmod_hole ->
+        | Tmod_typed_hole ->
             raise (Error "module_hole") Unexpected "Unexpected module hole."))
 
 and of_structure (typ_vars : Name.t Name.Map.t) (signature_path : Path.t)
@@ -1548,7 +1633,7 @@ and of_structure (typ_vars : Name.t Name.Map.t) (signature_path : Path.t)
                       typ_id;
                       typ_type =
                         {
-                          type_kind = Type_abstract;
+                          type_kind = Type_abstract _;
                           type_manifest = Some typ;
                           type_params;
                           _;

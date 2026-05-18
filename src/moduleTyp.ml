@@ -96,7 +96,7 @@ let of_ocaml_module_with_substitutions (signature_path : Path.t)
              let { Typedtree.typ_loc; typ_type; _ } = typ_declaration in
              match typ_type with
              | {
-              type_kind = Type_abstract;
+              type_kind = Type_abstract _;
               type_manifest = Some typ;
               type_params;
               _;
